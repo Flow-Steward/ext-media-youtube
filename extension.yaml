@@ -1,0 +1,470 @@
+manifest_version: 2
+lifecycle:
+  data_schema_version: 1
+  data_migrations: []
+extension_id: flowsteward.youtube
+kind: tool_provider
+version: 0.1.0
+release_stage: active
+billing_mode: free
+display_name: YouTube
+description: 'Connect workflows to your YouTube channel through the YouTube Data API
+  v3 and the YouTube Analytics API v2. Everyday steps read your channels and all videos
+  of a channel, read videos by ID, upload a video from a workflow file and follow
+  its processing, change a video''s details and thumbnail, read all comments of a
+  video and reply, manage playlists and read an analytics report for a channel or
+  a video.
+
+
+  89 of the 91 methods of the two APIs have their own step: channels, videos, playlists,
+  comments, captions, live streaming, subscriptions and analytics groups and reports,
+  103 steps in all. A connection is one YouTube channel, authorized through your own
+  Google Cloud OAuth client.'
+vendor:
+  name: Flow Steward
+  support_url: https://github.com/Flow-Steward/ext-media-youtube/issues
+  website_url: https://github.com/Flow-Steward/ext-media-youtube
+listing:
+  category: media
+  tags:
+  - youtube
+  - video
+  - upload
+  - comments
+  - playlists
+  - analytics
+  summary: Upload and update YouTube videos, manage playlists and comments, and read
+    YouTube Analytics reports.
+  categories:
+  - media
+  - marketing
+  setup_summary: Create a Web application OAuth client in Google Cloud with the YouTube
+    Data API v3 and YouTube Analytics API enabled, enter its Client ID and Client
+    Secret on the Connection page, connect the channel and run the connection test.
+features:
+- tool
+- action
+required_scopes:
+- extension:invoke
+- artifact:read
+- artifact:write
+machine_auth:
+  service_account_key: svc_ext_youtube
+  required_scopes:
+  - extension:invoke
+  - artifact:read
+  - artifact:write
+account_scope:
+  scope_type: project
+  description: Each authorized YouTube channel is a project connection; a project
+    may hold several.
+egress:
+  hosts:
+  - youtube.googleapis.com
+  - youtubeanalytics.googleapis.com
+callbacks:
+- callback_id: oauth_authorization
+  purpose: oauth_authorization
+  methods:
+  - GET
+  connection_scoped: false
+external_effects:
+- operation_id: upload_video
+  effect_kind: youtube_upload_video
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_video_details
+  effect_kind: youtube_update_video_details
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: set_video_thumbnail
+  effect_kind: youtube_set_video_thumbnail
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: reply_to_comment
+  effect_kind: youtube_reply_to_comment
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_playlist
+  effect_kind: youtube_create_playlist
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: add_video_to_playlist
+  effect_kind: youtube_add_video_to_playlist
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_channel
+  effect_kind: youtube_update_channel
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_channel_section
+  effect_kind: youtube_create_channel_section
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_channel_section
+  effect_kind: youtube_update_channel_section
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_channel_section
+  effect_kind: youtube_delete_channel_section
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: upload_channel_banner
+  effect_kind: youtube_upload_channel_banner
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: set_channel_watermark
+  effect_kind: youtube_set_channel_watermark
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: remove_channel_watermark
+  effect_kind: youtube_remove_channel_watermark
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_third_party_link
+  effect_kind: youtube_create_third_party_link
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_third_party_link
+  effect_kind: youtube_update_third_party_link
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_third_party_link
+  effect_kind: youtube_delete_third_party_link
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: report_video_abuse
+  effect_kind: youtube_report_video_abuse
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: upload_video_file
+  effect_kind: youtube_upload_video_file
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: rate_video
+  effect_kind: youtube_rate_video
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_video
+  effect_kind: youtube_update_video
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_video
+  effect_kind: youtube_delete_video
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: set_video_thumbnail_file
+  effect_kind: youtube_set_video_thumbnail_file
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_abuse_report
+  effect_kind: youtube_create_abuse_report
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_playlist_from_body
+  effect_kind: youtube_create_playlist_from_body
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_playlist
+  effect_kind: youtube_update_playlist
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_playlist
+  effect_kind: youtube_delete_playlist
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_playlist_item
+  effect_kind: youtube_create_playlist_item
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_playlist_item
+  effect_kind: youtube_update_playlist_item
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_playlist_item
+  effect_kind: youtube_delete_playlist_item
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: upload_playlist_image
+  effect_kind: youtube_upload_playlist_image
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_playlist_image
+  effect_kind: youtube_update_playlist_image
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_playlist_image
+  effect_kind: youtube_delete_playlist_image
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_comment_thread
+  effect_kind: youtube_create_comment_thread
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_comment_reply
+  effect_kind: youtube_create_comment_reply
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: mark_comments_as_spam
+  effect_kind: youtube_mark_comments_as_spam
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: set_comment_moderation_status
+  effect_kind: youtube_set_comment_moderation_status
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_comment
+  effect_kind: youtube_update_comment
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_comment
+  effect_kind: youtube_delete_comment
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: upload_caption_track
+  effect_kind: youtube_upload_caption_track
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_caption_track
+  effect_kind: youtube_update_caption_track
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_caption_track
+  effect_kind: youtube_delete_caption_track
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: change_live_broadcast_status
+  effect_kind: youtube_change_live_broadcast_status
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_live_broadcast
+  effect_kind: youtube_create_live_broadcast
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: insert_broadcast_cuepoint
+  effect_kind: youtube_insert_broadcast_cuepoint
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: bind_live_broadcast_to_stream
+  effect_kind: youtube_bind_live_broadcast_to_stream
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_live_broadcast
+  effect_kind: youtube_update_live_broadcast
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_live_broadcast
+  effect_kind: youtube_delete_live_broadcast
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_live_stream
+  effect_kind: youtube_create_live_stream
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_live_stream
+  effect_kind: youtube_update_live_stream
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_live_stream
+  effect_kind: youtube_delete_live_stream
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: change_live_chat_event_status
+  effect_kind: youtube_change_live_chat_event_status
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: send_live_chat_message
+  effect_kind: youtube_send_live_chat_message
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_live_chat_message
+  effect_kind: youtube_delete_live_chat_message
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: ban_live_chat_user
+  effect_kind: youtube_ban_live_chat_user
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: remove_live_chat_ban
+  effect_kind: youtube_remove_live_chat_ban
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: add_live_chat_moderator
+  effect_kind: youtube_add_live_chat_moderator
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: remove_live_chat_moderator
+  effect_kind: youtube_remove_live_chat_moderator
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_subscription
+  effect_kind: youtube_create_subscription
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_subscription
+  effect_kind: youtube_delete_subscription
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: create_analytics_group
+  effect_kind: youtube_create_analytics_group
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: update_analytics_group
+  effect_kind: youtube_update_analytics_group
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: delete_analytics_group
+  effect_kind: youtube_delete_analytics_group
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: add_analytics_group_item
+  effect_kind: youtube_add_analytics_group_item
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+- operation_id: remove_analytics_group_item
+  effect_kind: youtube_remove_analytics_group_item
+  channel: youtube_api
+  idempotency: required
+  test_mode_behavior: suppress
+runtime:
+  contract_version: extension_host_v2
+  extension_contract_v2:
+    oauth_providers:
+    - provider_id: google_youtube
+      display_name: YouTube (Google)
+      description: Sign in with the Google account of the YouTube channel and allow
+        your Google Cloud OAuth client to act for it.
+      setup_page_id: connection
+      help_page_id: connection
+      error_help_anchors:
+        invalid_client: client-credentials
+        authorization_required: authorize-again
+        provider_unavailable: google-api-setup
+      flow:
+        type: authorization_code
+        pkce: s256
+      credential_fields:
+      - field_id: client_id
+        value_type: text
+        required: true
+        secret: false
+        change_policy: reauthorization_required
+        label: Google OAuth Client ID
+        help_text: The Client ID of your Web application OAuth client in Google Cloud.
+        autocomplete: 'off'
+        validation:
+          min_length: 1
+          max_length: 512
+      - field_id: client_secret
+        value_type: secret
+        required: true
+        secret: true
+        change_policy: runtime_revalidate
+        label: Google OAuth Client Secret
+        help_text: The Client Secret of the same OAuth client.
+        autocomplete: 'off'
+        validation:
+          min_length: 1
+          max_length: 4096
+      authorization_endpoint:
+        url: https://accounts.google.com/o/oauth2/v2/auth
+      token_endpoint:
+        url: https://oauth2.googleapis.com/token
+        client_auth_method: client_secret_post
+      revocation_endpoint:
+        url: https://oauth2.googleapis.com/revoke
+      callback_id: oauth_authorization
+      authorization_intents:
+      - intent_id: connect
+        static_parameters:
+          access_type: offline
+          include_granted_scopes: false
+          prompt: consent select_account
+        user_inputs:
+        - input_id: email_hint
+          parameter: login_hint
+          validation:
+            type: email
+            max_length: 320
+      post_connect_action_id: verify_identity
+    connection_types: contracts/connection_types.yaml
+    operation_manifest: contracts/operation_manifest.yaml
+    step_ui_manifest: contracts/step_ui_manifest.yaml
+    artifact_policies: contracts/artifact_policies.yaml
+entrypoint:
+  mode: subprocess
+  command:
+  - python3
+  - main.py
+  timeout_seconds: 600
+health:
+  command:
+  - python3
+  - health.py
+  timeout_seconds: 5
+ui_manifest: ui/ui_manifest.yaml
+action_manifest: ui/actions/actions.yaml
+python_requirements: []
