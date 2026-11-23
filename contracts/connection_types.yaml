@@ -4,29 +4,26 @@ connection_types:
 - connection_type_id: youtube_channel
   display_name: YouTube channel
   description: A YouTube channel, authorized to manage its videos, playlists, comments, captions and live
-    streams and to read its YouTube Analytics reports.
+    streams.
   auth:
     type: oauth2
     provider_id: google_youtube
     scopes:
       required:
       - https://www.googleapis.com/auth/youtube.force-ssl
-      - https://www.googleapis.com/auth/yt-analytics.readonly
       optional: []
   capabilities:
     test_connection: true
 - connection_type_id: youtube_channel_monetized
-  display_name: YouTube channel with revenue and memberships
-  description: A YouTube channel as above, also authorized to read revenue metrics in YouTube Analytics
-    and the channel's members and membership levels.
+  display_name: YouTube channel with memberships
+  description: A YouTube channel as above, also authorized to read the channel's members and membership
+    levels.
   auth:
     type: oauth2
     provider_id: google_youtube
     scopes:
       required:
       - https://www.googleapis.com/auth/youtube.force-ssl
-      - https://www.googleapis.com/auth/yt-analytics.readonly
-      - https://www.googleapis.com/auth/yt-analytics-monetary.readonly
       - https://www.googleapis.com/auth/youtube.channel-memberships.creator
       optional: []
   capabilities:
@@ -34,15 +31,13 @@ connection_types:
 - connection_type_id: youtube_content_owner
   display_name: YouTube content owner
   description: A YouTube content owner (a YouTube partner's CMS account), authorized to act for its channels
-    with the on_behalf_of_content_owner inputs and to read their reports, revenue included.
+    with the on_behalf_of_content_owner inputs.
   auth:
     type: oauth2
     provider_id: google_youtube
     scopes:
       required:
       - https://www.googleapis.com/auth/youtube.force-ssl
-      - https://www.googleapis.com/auth/yt-analytics.readonly
-      - https://www.googleapis.com/auth/yt-analytics-monetary.readonly
       - https://www.googleapis.com/auth/youtubepartner
       - https://www.googleapis.com/auth/youtubepartner-channel-audit
       optional: []

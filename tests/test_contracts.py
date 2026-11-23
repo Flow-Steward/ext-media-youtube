@@ -51,7 +51,6 @@ def test_generated_files_are_current(path: str) -> None:
 def test_every_method_of_the_source_is_a_step_or_excluded_with_a_reason() -> None:
     methods = source_methods()
     assert len(build_contracts.methods("data")) == 83
-    assert len(build_contracts.methods("analytics")) == 8
     registry = generic.registry()
     covered = {e["vendor_method_id"] for e in registry.values()}
     excluded = set(names.EXCLUDED)
@@ -60,11 +59,11 @@ def test_every_method_of_the_source_is_a_step_or_excluded_with_a_reason() -> Non
     assert excluded == {"youtube.tests.insert", "youtube.youtube.v3.liveChat.messages.stream"}
     for method_id, reason in names.EXCLUDED.items():
         assert len(reason) > 40, method_id
-    assert registry_counts(registry) == {"GET": 31, "POST": 30, "PUT": 12, "DELETE": 16}
-    assert len(registry) == 89
+    assert registry_counts(registry) == {"GET": 28, "POST": 28, "PUT": 11, "DELETE": 14}
+    assert len(registry) == 81
     manifest = [o["operation_id"] for o in operations()]
     assert manifest[: len(EVERYDAY)] == EVERYDAY
-    assert sorted(manifest[len(EVERYDAY) :]) == sorted(registry) and len(manifest) == 103
+    assert sorted(manifest[len(EVERYDAY) :]) == sorted(registry) and len(manifest) == 94
     assert set(manifest) | {"verify_identity"} == set(catalog.OPERATION_IDS)
     assert set(names.TITLES) == covered
 
@@ -78,7 +77,7 @@ def test_the_coverage_page_lists_the_exclusions_and_the_reporting_api() -> None:
     for method_id in names.EXCLUDED:
         assert method_id in body
     assert "YouTube Reporting API" in body
-    assert "89 of them have their own step" in body
+    assert "81 of them have their own step" in body
 
 
 def test_step_ids_are_frozen_unique_and_never_vendor_ids() -> None:
@@ -132,7 +131,7 @@ def test_every_step_has_warnings_and_every_write_is_a_suppressed_effect() -> Non
             assert "timeout_unknown" in op["error_codes"]
     generated_writes = {k for k, v in generic.registry().items() if v["kind"] == "write"}
     assert generated_writes | composites.COMPOSITE_WRITES == effect_ids
-    assert len(effect_ids) == 58 + 6
+    assert len(effect_ids) == 53 + 6
     assert all(
         e["idempotency"] == "required" and e["test_mode_behavior"] == "suppress" for e in effects
     )
@@ -235,7 +234,6 @@ def test_connection_types_ask_for_scopes_the_source_names() -> None:
     base = set(types[0]["auth"]["scopes"]["required"])
     assert base == {
         "https://www.googleapis.com/auth/youtube.force-ssl",
-        "https://www.googleapis.com/auth/yt-analytics.readonly",
     }
     for row in types[1:]:
         assert base < set(row["auth"]["scopes"]["required"])
@@ -244,7 +242,6 @@ def test_connection_types_ask_for_scopes_the_source_names() -> None:
 def test_the_base_scopes_allow_every_step_but_the_membership_ones_and_third_party_links() -> None:
     base = {
         "https://www.googleapis.com/auth/youtube.force-ssl",
-        "https://www.googleapis.com/auth/yt-analytics.readonly",
     }
     outside = sorted(oid for oid, e in generic.registry().items() if not set(e["scopes"]) & base)
     assert outside == [
@@ -392,10 +389,11 @@ def test_ui_pages_have_no_tables_and_no_forbidden_words() -> None:
             assert word not in lowered, (page_id, word)
 
 
-def test_the_icon_is_a_128_png_and_branding_records_its_source() -> None:
+def test_the_icon_is_a_square_png_with_the_logo_at_least_100_px_tall() -> None:
     data = (BUNDLE / "icon.png").read_bytes()
     assert data.startswith(b"\x89PNG\r\n\x1a\n")
-    assert struct.unpack(">II", data[16:24]) == (128, 128)
+    assert struct.unpack(">II", data[16:24]) == (256, 256)
+    assert "180 × 126" in (BUNDLE / "BRANDING.md").read_text(encoding="utf-8")
     branding = (BUNDLE / "BRANDING.md").read_text(encoding="utf-8")
     assert hashlib.sha256(data).hexdigest() in branding
     assert "youtube-icon.zip" in branding
@@ -435,11 +433,10 @@ def test_the_runtime_names_no_server_beyond_youtube() -> None:
         hosts |= set(re.findall(r"https://([a-z0-9.-]+)", path.read_text(encoding="utf-8")))
     assert hosts <= {
         "youtube.googleapis.com",
-        "youtubeanalytics.googleapis.com",
         "developers.google.com",
     }
     egress = set(load("extension.yaml")["egress"]["hosts"])
-    assert egress == {"youtube.googleapis.com", "youtubeanalytics.googleapis.com"}
+    assert egress == {"youtube.googleapis.com"}
     for api, facts in build_contracts.sources_facts().items():
         assert facts["root_url"].removeprefix("https://").rstrip("/") in egress, api
 

@@ -9,17 +9,15 @@ release_stage: active
 billing_mode: free
 display_name: YouTube
 description: 'Connect workflows to your YouTube channel through the YouTube Data API
-  v3 and the YouTube Analytics API v2. Everyday steps read your channels and all videos
-  of a channel, read videos by ID, upload a video from a workflow file and follow
-  its processing, change a video''s details and thumbnail, read all comments of a
-  video and reply, manage playlists and read an analytics report for a channel or
-  a video.
+  v3. Everyday steps read your channels and all videos of a channel, read videos by
+  ID, upload a video from a workflow file and follow its processing, change a video''s
+  details and thumbnail, read all comments of a video and reply, and manage playlists.
 
 
-  89 of the 91 methods of the two APIs have their own step: channels, videos, playlists,
-  comments, captions, live streaming, subscriptions and analytics groups and reports,
-  103 steps in all. A connection is one YouTube channel, authorized through your own
-  Google Cloud OAuth client.'
+  81 of the 83 methods of the API have their own step: channels, videos, playlists,
+  comments, captions, live streaming and subscriptions, 94 steps in all. A connection
+  is one YouTube channel, authorized through your own Google Cloud OAuth client. YouTube
+  Analytics reports are in the separate extension YouTube Analytics (flowsteward.youtube-analytics).'
 vendor:
   name: Flow Steward
   support_url: https://github.com/Flow-Steward/ext-media-youtube/issues
@@ -32,15 +30,15 @@ listing:
   - upload
   - comments
   - playlists
-  - analytics
-  summary: Upload and update YouTube videos, manage playlists and comments, and read
-    YouTube Analytics reports.
+  - captions
+  summary: Upload and update YouTube videos, manage playlists, comments, captions
+    and live streams.
   categories:
   - media
   - marketing
   setup_summary: Create a Web application OAuth client in Google Cloud with the YouTube
-    Data API v3 and YouTube Analytics API enabled, enter its Client ID and Client
-    Secret on the Connection page, connect the channel and run the connection test.
+    Data API v3 enabled, enter its Client ID and Client Secret on the Connection page,
+    connect the channel and run the connection test.
 features:
 - tool
 - action
@@ -61,7 +59,6 @@ account_scope:
 egress:
   hosts:
   - youtube.googleapis.com
-  - youtubeanalytics.googleapis.com
 callbacks:
 - callback_id: oauth_authorization
   purpose: oauth_authorization
@@ -361,31 +358,6 @@ external_effects:
   test_mode_behavior: suppress
 - operation_id: delete_subscription
   effect_kind: youtube_delete_subscription
-  channel: youtube_api
-  idempotency: required
-  test_mode_behavior: suppress
-- operation_id: create_analytics_group
-  effect_kind: youtube_create_analytics_group
-  channel: youtube_api
-  idempotency: required
-  test_mode_behavior: suppress
-- operation_id: update_analytics_group
-  effect_kind: youtube_update_analytics_group
-  channel: youtube_api
-  idempotency: required
-  test_mode_behavior: suppress
-- operation_id: delete_analytics_group
-  effect_kind: youtube_delete_analytics_group
-  channel: youtube_api
-  idempotency: required
-  test_mode_behavior: suppress
-- operation_id: add_analytics_group_item
-  effect_kind: youtube_add_analytics_group_item
-  channel: youtube_api
-  idempotency: required
-  test_mode_behavior: suppress
-- operation_id: remove_analytics_group_item
-  effect_kind: youtube_remove_analytics_group_item
   channel: youtube_api
   idempotency: required
   test_mode_behavior: suppress

@@ -36,7 +36,6 @@ CONNECTION_TYPES: frozenset[str] = frozenset(
 #: Host of each API (the ``rootUrl`` of each pinned Discovery document).
 HOSTS: dict[str, str] = {
     "data": "youtube.googleapis.com",
-    "analytics": "youtubeanalytics.googleapis.com",
 }
 SECRET_FIELDS: frozenset[str] = frozenset({"access_token"})
 #: Shorter tokens could not be removed from answers without mangling them.

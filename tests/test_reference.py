@@ -30,10 +30,6 @@ def test_the_pinned_documents_are_what_they_say() -> None:
     assert facts["data"]["name"] == "youtube" and facts["data"]["version"] == "v3"
     assert facts["data"]["revision"] == "20261119"
     assert facts["data"]["root_url"] == "https://youtube.googleapis.com/"
-    assert facts["analytics"]["name"] == "youtubeAnalytics"
-    assert facts["analytics"]["version"] == "v2"
-    assert facts["analytics"]["revision"] == "20261122"
-    assert facts["analytics"]["root_url"] == "https://youtubeanalytics.googleapis.com/"
 
 
 def test_a_changed_document_is_refused(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:  # type: ignore[no-untyped-def]

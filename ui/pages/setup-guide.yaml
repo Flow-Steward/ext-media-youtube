@@ -7,7 +7,7 @@ components:
     title: Connect YouTube
     body: |
       1. **Create or choose a Google Cloud project** at [console.cloud.google.com](https://console.cloud.google.com).
-      2. **Enable the APIs.** In the API Library enable **YouTube Data API v3** and **YouTube Analytics API**.
+      2. **Enable the API.** In the API Library enable **YouTube Data API v3**.
       3. **Configure the OAuth consent screen** of the project. Whether the app must be verified by Google, and who may sign in while it is in testing, follows Google's policies for the scopes it asks for.
       4. **Create an OAuth client** of the type **Web application** and add the OAuth Redirect URI shown on the **Connection** page as an authorized redirect URI, exactly as shown.
       5. **Copy the Client ID and Client Secret** of that client into **Connection** and save them.
@@ -21,9 +21,11 @@ components:
     type: markdown
     title: Which connection type
     body: |
-      - **YouTube channel** asks for `youtube.force-ssl` and `yt-analytics.readonly`: videos, playlists, comments, captions, live streams and analytics reports.
-      - **YouTube channel with revenue and memberships** also asks for `yt-analytics-monetary.readonly` (revenue metrics) and `youtube.channel-memberships.creator` (Get channel members, Get membership levels).
-      - **YouTube content owner** is for YouTube partners with a CMS account: it also asks for `youtubepartner`, `youtubepartner-channel-audit` and `yt-analytics-monetary.readonly`, for the `on_behalf_of_content_owner` inputs.
+      - **YouTube channel** asks for `youtube.force-ssl`: videos, playlists, comments, captions and live streams.
+      - **YouTube channel with memberships** also asks for `youtube.channel-memberships.creator` (Get channel members, Get membership levels).
+      - **YouTube content owner** is for YouTube partners with a CMS account: it also asks for `youtubepartner` and `youtubepartner-channel-audit`, for the `on_behalf_of_content_owner` inputs.
+
+      YouTube Analytics reports are in the separate extension [YouTube Analytics](https://github.com/Flow-Steward/ext-marketing-youtube-analytics) (`flowsteward.youtube-analytics`).
 
       A step names the scopes that allow it. If the connection lacks one, YouTube refuses the step and nothing changes.
   - component_id: setup_quota

@@ -8,9 +8,9 @@ components:
   type: markdown
   title: How the steps work
   body: |
-    The steps call the YouTube Data API v3 and the YouTube Analytics API v2 for the connected channel. Every method of the two APIs has a step: 103 steps in all, the everyday ones first.
+    The steps call the YouTube Data API v3 for the connected channel. Every method of the API that a step can hold has one: 94 steps in all, the everyday ones first. YouTube Analytics reports are in the separate extension [YouTube Analytics](https://github.com/Flow-Steward/ext-marketing-youtube-analytics) (flowsteward.youtube-analytics).
 
-    - **Scopes.** Each step names the Google scopes that allow it. The connection type decides which scopes are asked for: YouTube channel, YouTube channel with revenue and memberships, or YouTube content owner.
+    - **Scopes.** Each step names the Google scopes that allow it. The connection type decides which scopes are asked for: YouTube channel, YouTube channel with memberships, or YouTube content owner.
     - **Quota.** YouTube does not report the quota left in its answers. Each Data API step names its cost in quota units from YouTube's quota table; when the daily quota is used up, YouTube refuses with quotaExceeded and the step says so.
     - **Results.** A generated step returns `status`, `data` (YouTube's JSON) or `file` (a workflow file for a caption track), `etag` and `warnings`; a list also returns `items`, `count`, `complete` and `next_page_token`.
     - **Lists.** With `all_pages` a list step reads page after page; when it stops early, `next_page_token` is where the next run starts, so nothing is skipped or read twice.
@@ -26,7 +26,6 @@ components:
     - **Comments and captions** (13 steps)
     - **Live streaming** (21 steps)
     - **Subscriptions and regions** (5 steps)
-    - **Analytics** (8 steps)
 - component_id: steps_everyday
   type: markdown
   title: Everyday
@@ -160,13 +159,3 @@ components:
     Inputs: `playlist_id` (required), `video_id` (required), `position`.
 
     Results: `playlist_item_id`, `data`, `processing`, `applied`, `check`, `warnings`.
-
-    ### Get analytics report
-
-    Reads a YouTube Analytics report for the connected channel (or channel_id), or for one video with video_id: the metrics asked for, by the dimensions asked for, from start_date to end_date. Numbers are exact decimals. Revenue metrics need the connection type YouTube channel with revenue and memberships.
-
-    Action id `get_analytics_report` · reads only · YouTube: `GET /v2/reports`
-
-    Inputs: `start_date` (required), `end_date` (required), `metrics` (required), `dimensions`, `video_id`, `channel_id`, `filters`, `sort`, `max_results`, `currency`.
-
-    Results: `column_headers`, `rows`, `row_count`, `warnings`.

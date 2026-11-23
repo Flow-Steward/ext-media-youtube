@@ -10,9 +10,7 @@ class that needs the new id from YouTube's answer.
 
 from __future__ import annotations
 
-import re
 from collections.abc import Callable, Mapping
-from datetime import date
 from typing import Any
 
 from . import budget, errors, files, generic, outcome, pages, upload
@@ -54,7 +52,6 @@ MAX_TEXT = 20000
 _ID_CHARS = frozenset("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_")
 
 PROCESSING_STEP = "get_video_processing_status"
-_DAY = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 # -- helpers -----------------------------------------------------------------------------
@@ -861,99 +858,6 @@ def add_video_to_playlist(context: Context) -> dict[str, Any]:
     }
 
 
-# -- analytics ---------------------------------------------------------------------------
-
-
-def _day(given: Mapping[str, Any], name: str) -> date:
-    value = text(given.get(name), name, max_length=10)
-    if not _DAY.fullmatch(value):
-        raise invalid(f"{name} must be a date written YYYY-MM-DD")
-    try:
-        return date.fromisoformat(value)
-    except ValueError:
-        raise invalid(f"{name} is not a real date: {value}") from None
-
-
-def get_analytics_report(context: Context) -> dict[str, Any]:
-    given = _closed(
-        context.operation_input,
-        {
-            "start_date",
-            "end_date",
-            "metrics",
-            "dimensions",
-            "video_id",
-            "channel_id",
-            "filters",
-            "sort",
-            "max_results",
-            "currency",
-        },
-    )
-    start = _day(given, "start_date")
-    end = _day(given, "end_date")
-    if end < start:
-        raise invalid("end_date may not be before start_date")
-    metrics = _list(given, "metrics", max_items=50, max_length=100)
-    if not metrics:
-        raise invalid("metrics is required: one or more YouTube Analytics metrics, such as views")
-    dimensions = _list(given, "dimensions", max_items=10, max_length=100)
-    channel = given.get("channel_id")
-    ids = "channel==MINE" if channel in (None, "") else f"channel=={_ident(channel, 'channel_id')}"
-    query: dict[str, Any] = {
-        "ids": ids,
-        "start_date": start.isoformat(),
-        "end_date": end.isoformat(),
-        "metrics": ",".join(metrics),
-    }
-    if dimensions:
-        query["dimensions"] = ",".join(dimensions)
-    filters = []
-    if given.get("video_id") not in (None, ""):
-        filters.append("video==" + _ident(given["video_id"], "video_id"))
-    extra = _opt_text(given, "filters", max_length=2000)
-    if extra:
-        filters.append(extra)
-    if filters:
-        query["filters"] = ";".join(filters)
-    sort = _opt_text(given, "sort", max_length=500)
-    if sort:
-        query["sort"] = sort
-    if given.get("max_results") not in (None, ""):
-        query["max_results"] = integer(
-            {"minimum": 1, "maximum": 1_000_000}, given["max_results"], "max_results"
-        )
-    currency = _opt_text(given, "currency", max_length=3)
-    if currency:
-        if len(currency) != 3 or not currency.isalpha() or not currency.isupper():
-            raise invalid("currency must be a three-letter code such as EUR")
-        query["currency"] = currency
-    data = _read(context, "query_analytics_report", query)
-    shown = "GET /v2/reports"
-    if not isinstance(data, Mapping):
-        raise pages.bad(shown, "is not a JSON object")
-    failed = data.get("errors")
-    if failed:
-        # QueryResponse.errors: "When set, indicates that the operation failed."
-        detail = errors.safe_text(dumps_json(context.transport.scrub(failed)), 400)
-        raise errors.no_effect(
-            errors.UPSTREAM_FAILURE,
-            f"YouTube Analytics answered {shown} with errors: {detail}",
-            failure_class="provider",
-            retryable=False,
-        )
-    headers = data.get("columnHeaders", [])
-    rows = data.get("rows", [])
-    if not isinstance(headers, list) or not isinstance(rows, list):
-        raise pages.bad(shown, "has columnHeaders or rows that are not lists")
-    return {
-        "column_headers": headers,
-        "rows": rows,
-        "row_count": len(rows),
-        "warnings": [],
-    }
-
-
 #: Everyday step id -> runner.
 COMPOSITES: dict[str, Callable[[Context], dict[str, Any]]] = {
     "test_connection": test_connection,
@@ -969,7 +873,6 @@ COMPOSITES: dict[str, Callable[[Context], dict[str, Any]]] = {
     "list_my_playlists": list_my_playlists,
     "create_playlist": create_playlist,
     "add_video_to_playlist": add_video_to_playlist,
-    "get_analytics_report": get_analytics_report,
     "verify_identity": verify_identity,
 }
 #: Everyday steps that change data in YouTube.

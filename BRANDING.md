@@ -19,15 +19,16 @@ in Flow Steward.
 ## What was done
 
 - The empty transparent margin around the icon was trimmed (the icon itself is 827 × 579), the
-  icon was scaled proportionally to 128 pixels wide and centered on a transparent 128 × 128
-  canvas (ImageMagick). Colors, shape and proportions are unchanged.
-- SHA-256 of `icon.png`: `fbc73ffeb63f042da333cb1a4ea0e19a45054dc3a437cafee06b3920e23100b0`.
+  icon was scaled proportionally to 180 × 126 px and centered on a transparent 256 × 256
+  canvas (ImageMagick: `-trim -resize 180x -gravity center -extent 256x256`). Colors, shape and
+  proportions are unchanged. The icon is 126 px tall, above the 100 px digital minimum of the
+  brand page, with 38 px of empty space left and right and 65 px above and below.
+- SHA-256 of `icon.png`: `fb322da575201bf9b0873aaee8dac7f0eaea922e46d5ba61c453dc3c74cb3223`.
 
 ## Use
 
 YouTube and the YouTube logo are trademarks of Google LLC. The icon is used unaltered in form
 and color, only to show which service this integration connects to; it does not imply
 endorsement by Google or YouTube. The brand page's rules were followed: full-color icon with
-a white triangle, no stroke, shadow, rotation, stretching or custom colors. The page asks for a
-digital height of at least 100 px; in the 128 × 128 square Flow Steward shows, the icon's
-proportions allow 128 × 90 px.
+a white triangle, no stroke, shadow, rotation, stretching or custom colors, and a digital height
+of at least 100 px.

@@ -1,15 +1,14 @@
 """The only way this extension reaches YouTube.
 
 Each step is one REST call (or, for an upload, the calls of YouTube's resumable upload
-protocol) to ``https://youtube.googleapis.com`` (YouTube Data API v3) or
-``https://youtubeanalytics.googleapis.com`` (YouTube Analytics API v2), the ``rootUrl``
-of each pinned Discovery document, with the method and path the document gives. The
+protocol) to ``https://youtube.googleapis.com`` (YouTube Data API v3), the ``rootUrl``
+of the pinned Discovery document, with the method and path the document gives. The
 access token travels only in the ``Authorization: Bearer`` header. Requests go out
 through the public Flow Steward extension SDK, which pins DNS, verifies the connected
 peer, refuses redirects and enforces the timeout; they are sent one at a time, never in
 parallel, and never retried.
 
-The Discovery documents give each method's response schema, not its HTTP statuses, so
+The Discovery document gives each method's response schema, not its HTTP statuses, so
 any 2xx status is a success. Refusals carry Google's error object
 (``{"error": {"code", "message", "errors": [{"reason", "message", ...}], "status"}}``);
 only its texts reach the step's error, bounded and with the token removed. The reasons
@@ -61,11 +60,11 @@ CHECK = "; check in YouTube what changed before running the step again"
 #: Response headers a step may return or the upload reads.
 KEPT_HEADERS = ("Location", "ETag", "Last-Modified", "Retry-After", "Range")
 #: Error reasons of HTTP 403 that mean a quota or rate limit, not a missing permission
-#: (YouTube Data API errors page and the YouTube Analytics API errors).
+#: (YouTube Data API errors page).
 QUOTA_REASONS = frozenset(
     {"quotaExceeded", "rateLimitExceeded", "userRateLimitExceeded", "dailyLimitExceeded"}
 )
-#: Any 2xx status is a success (the Discovery documents give no statuses).
+#: Any 2xx status is a success (the Discovery document gives no statuses).
 ANY_2XX = "2xx"
 
 
@@ -95,7 +94,7 @@ class Call:
     method: str
     path: str
     shown: str
-    #: "data" (YouTube Data API) or "analytics" (YouTube Analytics API).
+    #: "data": the YouTube Data API (the only API of this extension).
     api: str = "data"
     query: Sequence[tuple[str, str]] = ()
     headers: Mapping[str, str] = field(default_factory=dict)

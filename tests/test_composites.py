@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from decimal import Decimal
 from typing import Any
 
 import pytest
@@ -323,64 +322,3 @@ def test_a_test_run_of_an_everyday_write_sends_nothing(operation_id: str) -> Non
     assert fake.calls == []
     assert result["definitely_no_external_effect"] is True
     assert result["result"]["processing"] is None and result["result"]["applied"] is False
-
-
-# -- analytics ------------------------------------------------------------------------------
-
-
-def test_an_analytics_report_for_one_video_with_exact_numbers() -> None:
-    body = (
-        b'{"kind":"youtubeAnalytics#resultTable","columnHeaders":[{"name":"day"},{"name":"views"},'
-        b'{"name":"estimatedRevenue"}],"rows":[["2026-01-01",5,1.2345]]}'
-    )
-    from support import raw
-
-    fake = FakeYouTube(raw(200, body))
-    out = run(
-        "get_analytics_report",
-        {
-            "start_date": "2026-01-01",
-            "end_date": "2026-01-31",
-            "metrics": ["views", "estimatedRevenue"],
-            "dimensions": ["day"],
-            "video_id": "V1",
-            "sort": "day",
-        },
-        fake,
-    )["result"]
-    assert out["rows"] == [["2026-01-01", 5, "1.2345"]] and out["row_count"] == 1
-    query = dict(fake.calls[0].query)
-    assert query["ids"] == "channel==MINE" and query["filters"] == "video==V1"
-    assert query["metrics"] == "views,estimatedRevenue" and query["dimensions"] == "day"
-    assert fake.calls[0].host == "youtubeanalytics.googleapis.com"
-    assert Decimal(out["rows"][0][2]) == Decimal("1.2345")
-
-
-@pytest.mark.parametrize(
-    "given",
-    [
-        {"start_date": "2026-02-30", "end_date": "2026-03-01", "metrics": ["views"]},
-        {"start_date": "2026-03-02", "end_date": "2026-03-01", "metrics": ["views"]},
-        {"start_date": "2026-03-01", "end_date": "2026-03-01"},
-        {
-            "start_date": "2026-03-01",
-            "end_date": "2026-03-01",
-            "metrics": ["views"],
-            "currency": "eur",
-        },
-    ],
-)
-def test_analytics_inputs_are_checked(given: dict[str, Any]) -> None:
-    fake = FakeYouTube()
-    result = run("get_analytics_report", given, fake)
-    assert result["error_code"] == "invalid_payload" and fake.calls == []
-
-
-def test_analytics_errors_in_the_answer_fail_the_step() -> None:
-    fake = FakeYouTube(ok({"errors": {"error": [{"reason": "badRequest"}]}}))
-    result = run(
-        "get_analytics_report",
-        {"start_date": "2026-03-01", "end_date": "2026-03-01", "metrics": ["views"]},
-        fake,
-    )
-    assert result["error_code"] == "upstream_failure" and "badRequest" in result["error"]

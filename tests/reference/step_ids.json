@@ -79,13 +79,5 @@
  "youtube.videos.reportAbuse": "report_video_abuse",
  "youtube.videos.update": "update_video",
  "youtube.watermarks.set": "set_channel_watermark",
- "youtube.watermarks.unset": "remove_channel_watermark",
- "youtubeAnalytics.groupItems.delete": "remove_analytics_group_item",
- "youtubeAnalytics.groupItems.insert": "add_analytics_group_item",
- "youtubeAnalytics.groupItems.list": "get_analytics_group_items",
- "youtubeAnalytics.groups.delete": "delete_analytics_group",
- "youtubeAnalytics.groups.insert": "create_analytics_group",
- "youtubeAnalytics.groups.list": "get_analytics_groups",
- "youtubeAnalytics.groups.update": "update_analytics_group",
- "youtubeAnalytics.reports.query": "query_analytics_report"
+ "youtube.watermarks.unset": "remove_channel_watermark"
 }

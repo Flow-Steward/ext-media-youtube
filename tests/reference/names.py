@@ -274,40 +274,6 @@ TITLES: dict[str, tuple[str, str]] = {
         "Get content regions",
         "Reads the content regions YouTube supports.",
     ),
-    # Analytics
-    "youtubeAnalytics.reports.query": (
-        "Query analytics report",
-        "Reads a YouTube Analytics report: metrics by dimensions for a channel or content "
-        "owner over a date range.",
-    ),
-    "youtubeAnalytics.groups.list": (
-        "Get analytics groups",
-        "Reads YouTube Analytics groups by ID or of the connected account.",
-    ),
-    "youtubeAnalytics.groups.insert": (
-        "Create analytics group",
-        "Creates a YouTube Analytics group of videos, playlists, channels or assets.",
-    ),
-    "youtubeAnalytics.groups.update": (
-        "Update analytics group",
-        "Changes a YouTube Analytics group, for example its title.",
-    ),
-    "youtubeAnalytics.groups.delete": (
-        "Delete analytics group",
-        "Deletes a YouTube Analytics group.",
-    ),
-    "youtubeAnalytics.groupItems.list": (
-        "Get analytics group items",
-        "Reads the items of a YouTube Analytics group.",
-    ),
-    "youtubeAnalytics.groupItems.insert": (
-        "Add analytics group item",
-        "Adds an item to a YouTube Analytics group.",
-    ),
-    "youtubeAnalytics.groupItems.delete": (
-        "Remove analytics group item",
-        "Removes an item from a YouTube Analytics group.",
-    ),
 }
 
 #: Method ids of the source that have no step, each with the reason.
@@ -355,7 +321,6 @@ AREAS: dict[str, list[str]] = {
         "superChatEvents",
     ],
     "Subscriptions and regions": ["subscriptions", "i18nLanguages", "i18nRegions"],
-    "Analytics": ["reports", "groups", "groupItems"],
 }
 
 #: The verbs a step title may start with.

@@ -94,9 +94,9 @@ def test_health_answers_without_network() -> None:
     report = json.loads(proc.stdout)
     assert report["ok"] is True
     assert report["extension_id"] == "flowsteward.youtube"
-    # 89 generated steps, 14 everyday steps and the post-connect action.
-    assert report["declared_operations"] == 104
-    assert set(report["specification_sha256"]) == {"data", "analytics"}
+    # 81 generated steps, 13 everyday steps and the post-connect action.
+    assert report["declared_operations"] == 95
+    assert set(report["specification_sha256"]) == {"data"}
 
 
 def _playlist_request(number: str, *, test_mode: bool = True) -> bytes:

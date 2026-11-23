@@ -1,11 +1,11 @@
-"""Runners of the generated steps: one method of the pinned Discovery documents each.
+"""Runners of the generated steps: one method of the pinned Discovery document each.
 
 What each step accepts and how its answer is read comes from runtime/registry.json,
-built from the pinned documents by tests/reference/build_contracts.py:
+built from the pinned document by tests/reference/build_contracts.py:
 
 - the path parameter is required text, percent-encoded as one path segment;
 - query parameters are typed by the document (text, whole number with its minimum and
-  maximum, true/false, RFC 3339 date-time, YYYY-MM-DD date, allowed values); a
+  maximum, true/false, RFC 3339 date-time, allowed values); a
   ``repeated`` one takes a list and sends one parameter per value;
 - a request body (the method's ``request`` schema) is the ``body`` input, sent as given
   with exact decimals; a field the schema does not list is refused before sending,

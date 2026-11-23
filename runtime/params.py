@@ -1,6 +1,6 @@
 """Step inputs checked against the source's parameters and turned into the request.
 
-Each node comes from runtime/registry.json (built from the pinned Discovery documents
+Each node comes from runtime/registry.json (built from the pinned Discovery document
 by tests/reference/build_contracts.py): its kind, whether it is required, its allowed
 values and bounds. Numbers stay exact to the wire; nothing goes through float.
 """
@@ -62,20 +62,6 @@ def date_time(value: str, what: str) -> str:
     return value
 
 
-_DAY_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
-
-
-def day(value: str, what: str) -> str:
-    """``value`` when it is a real date written YYYY-MM-DD."""
-    if not _DAY_RE.fullmatch(value):
-        raise invalid(f"{what} must be a date written YYYY-MM-DD, such as 2026-11-01")
-    try:
-        date.fromisoformat(value)
-    except ValueError:
-        raise invalid(f"{what} is not a real date: {value}") from None
-    return value
-
-
 def wire(value: Any) -> str:
     """A checked value as query text (Decimal plainly, booleans as JSON writes them)."""
     if isinstance(value, bool):
@@ -116,8 +102,6 @@ def check(node: Mapping[str, Any], value: Any, what: str) -> Any:
             raise invalid(f"{what} must be one of: {', '.join(allowed)}")
         if node.get("format") == "date-time":
             return date_time(result, what)
-        if node.get("format") == "date":
-            return day(result, what)
         return result
     if kind == "integer":
         return integer(node, value, what)
@@ -141,4 +125,4 @@ def check(node: Mapping[str, Any], value: Any, what: str) -> Any:
     raise invalid(f"{what} has a kind this extension does not know")  # pragma: no cover
 
 
-__all__ = ["check", "date_time", "day", "integer", "text", "wire"]
+__all__ = ["check", "date_time", "integer", "text", "wire"]

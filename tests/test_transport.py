@@ -43,23 +43,6 @@ def test_the_token_travels_only_in_the_authorization_header() -> None:
     assert TOKEN not in text_of(result)
 
 
-def test_analytics_goes_to_its_own_host() -> None:
-    fake = FakeYouTube(ok({"columnHeaders": [], "rows": []}))
-    result = run(
-        "query_analytics_report",
-        {
-            "ids": "channel==MINE",
-            "start_date": "2026-01-01",
-            "end_date": "2026-01-31",
-            "metrics": "views",
-        },
-        fake,
-    )
-    assert result["ok"] is True, result
-    assert fake.calls[0].host == "youtubeanalytics.googleapis.com"
-    assert fake.calls[0].path == "/v2/reports"
-
-
 def test_the_token_is_removed_from_answers_and_refusals() -> None:
     fake = FakeYouTube(ok({"items": [], "echo": f"Bearer {TOKEN}", TOKEN: "key"}))
     result = run(READ, READ_INPUT, fake)

@@ -97,24 +97,6 @@ def test_an_impossible_date_time_is_refused(value: str) -> None:
     assert result["error_code"] == "invalid_payload"
 
 
-@pytest.mark.parametrize("value", ["2026-02-30", "2026-1-01", "20260101"])
-def test_an_impossible_analytics_date_is_refused(value: str) -> None:
-    given = {
-        "ids": "channel==MINE",
-        "start_date": value,
-        "end_date": "2026-03-01",
-        "metrics": "views",
-    }
-    result = run("query_analytics_report", given, FakeYouTube())
-    assert result["error_code"] == "invalid_payload"
-
-
-def test_the_analytics_required_parameters_come_from_the_source_text() -> None:
-    query = {p["name"]: p["node"]["required"] for p in REGISTRY["query_analytics_report"]["query"]}
-    assert query["startDate"] and query["endDate"] and query["metrics"] and query["ids"]
-    assert not query["dimensions"]
-
-
 def test_a_body_with_fields_the_resource_does_not_have_is_refused() -> None:
     fake = FakeYouTube()
     result = run(
@@ -310,12 +292,6 @@ def test_a_live_chat_is_read_one_page_at_a_time() -> None:
     entry = REGISTRY["get_live_chat_messages"]
     assert entry["pager"] is None
     assert "page_token" in generic.inputs_of(entry)
-
-
-def test_a_list_without_page_size_reads_whole_pages() -> None:
-    fake = FakeYouTube(page(["g1"], "T2"), page(["g2"]))
-    out = run("get_analytics_groups", {"mine": True, "all_pages": True}, fake)["result"]
-    assert out["count"] == 2 and "maxResults" not in dict(fake.calls[0].query)
 
 
 def test_a_read_returns_no_token_in_its_output() -> None:

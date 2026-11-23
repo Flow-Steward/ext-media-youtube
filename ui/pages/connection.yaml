@@ -13,8 +13,8 @@ components:
       test_action: test_connection
   - component_id: youtube_monetized_connections
     type: connection_form
-    title: YouTube channels with revenue and memberships
-    description: Channels authorized also for revenue metrics and channel memberships.
+    title: YouTube channels with memberships
+    description: Channels authorized also for channel members and membership levels.
     data:
       oauth_provider_id: google_youtube
       connection_type: youtube_channel_monetized
@@ -48,6 +48,6 @@ components:
     body: |
       - **Invalid client** — the Client ID or Client Secret is wrong, or the client was deleted. Copy both again from Google Cloud.
       - **redirect_uri_mismatch** on Google's page — add the OAuth Redirect URI shown above to the OAuth client, exactly as shown.
-      - **A step is refused with HTTP 403 saying the API is not enabled or the scope is missing** — enable YouTube Data API v3 and YouTube Analytics API in the Google Cloud project, or use a connection type with the scope the step names.
+      - **A step is refused with HTTP 403 saying the API is not enabled or the scope is missing** — enable YouTube Data API v3 in the Google Cloud project, or use a connection type with the scope the step names.
       - **Test connection finds no channel** — the Google account has no YouTube channel, or another channel was chosen on Google's page. Connect again and choose the channel.
       - **quotaExceeded** — the project's daily YouTube quota is used up. Run the step again when Google renews the quota, or ask Google for more.

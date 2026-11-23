@@ -2,16 +2,16 @@
 # Do not edit by hand: tests/test_contracts.py fails when this file drifts.
 page_id: coverage
 title: Coverage
-description: What of the YouTube APIs the steps offer.
+description: What of the YouTube Data API the steps offer.
 components:
 - component_id: coverage_summary
   type: markdown
   title: Coverage
   body: |
-    The pinned Discovery documents list 91 methods: 83 of the YouTube Data API v3 (revision 20261119) and 8 of the YouTube Analytics API v2 (revision 20261122), downloaded 2026-11-23. **89 of them have their own step** in this version.
+    The pinned Discovery document of the YouTube Data API v3 (revision 20261119, downloaded 2026-11-23) lists 83 methods; **81 of them have their own step** in this version.
 
-    - **31 reads** (GET) and **58 changes**. Test runs never send changes.
-    - **16 list steps** read all pages with `all_pages`; **8 steps upload a file** by resumable upload; one saves a caption track as a file.
+    - **28 reads** (GET) and **53 changes**. Test runs never send changes.
+    - **15 list steps** read all pages with `all_pages`; **8 steps upload a file** by resumable upload; one saves a caption track as a file.
     - **68 Data API steps** name their quota cost from YouTube's quota table (updated 2026-11-12).
 
     Methods without a step:
@@ -21,6 +21,7 @@ components:
 
     Not in this release:
 
+    - **YouTube Analytics API**: Channel and video reports: in the separate extension YouTube Analytics (flowsteward.youtube-analytics, https://github.com/Flow-Steward/ext-marketing-youtube-analytics).
     - **YouTube Reporting API**: Bulk reports YouTube prepares as files on a schedule: a separate product with its own Discovery document (youtubereporting v1), not included in this release.
 
-    The everyday steps on top: test the connection, get my channels, get all videos of a channel, get videos by ID, upload a video and follow its processing, update a video's details and thumbnail, get all comments of a video and reply, get and create playlists and add videos, and get an analytics report.
+    The everyday steps on top: test the connection, get my channels, get all videos of a channel, get videos by ID, upload a video and follow its processing, update a video's details and thumbnail, get all comments of a video and reply, get and create playlists and add videos.

@@ -5,9 +5,9 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Flow-Steward/ext-media-youtube/ci.yml?branch=main&label=CI)](https://github.com/Flow-Steward/ext-media-youtube/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/Flow-Steward/ext-media-youtube?label=release)](https://github.com/Flow-Steward/ext-media-youtube/releases/latest)
 
-Automate your YouTube channel with Flow Steward workflows and AI agents: upload videos, keep titles and playlists in order, answer comments and collect analytics — without writing code.
+Automate your YouTube channel with Flow Steward workflows and AI agents: upload videos, keep titles and playlists in order, answer comments and moderate live chats — without writing code.
 
-This Flow Steward extension is a YouTube integration for video publishing and channel management. It works through the YouTube Data API v3 and the YouTube Analytics API v2, uploads videos from workflow files, follows their processing, reads all comments and videos of a channel and makes every method of both APIs available for workflow automation.
+This Flow Steward extension is a YouTube integration for video publishing and channel management. It works through the YouTube Data API v3, uploads videos from workflow files, follows their processing, reads all comments and videos of a channel and makes the methods of the API available for workflow automation.
 
 ## What is this
 
@@ -19,7 +19,6 @@ YouTube is Google's video platform. This extension is a connector: it adds ready
 - Keep video titles, descriptions and tags in line with your catalog or campaign plan.
 - Collect all new comments of your videos for a support or community team, and reply from a workflow after review.
 - Export the list of all videos of a channel with their statistics to a spreadsheet or BI tool.
-- Send a weekly report of views, watch time and subscribers per video from YouTube Analytics.
 - Manage live broadcasts, live chat moderation, captions and channel sections.
 
 ## Why teams use it
@@ -47,22 +46,23 @@ Everyday steps:
 - **Get all video comments** — every comment thread of a video, with replies if asked.
 - **Reply to comment** — answer a comment as the channel.
 - **Get all my playlists**, **Create playlist**, **Add video to playlist**.
-- **Get analytics report** — YouTube Analytics metrics by dimensions for a channel or a video over a date range.
 
-89 of the 91 methods of the YouTube Data API v3 and the YouTube Analytics API v2 are also available as steps: channels, videos, playlists, comments, captions, live streaming, subscriptions, and analytics groups and reports. The extension's **Coverage** page lists the two methods without a step and why.
+81 of the 83 methods of the YouTube Data API v3 are also available as steps: channels, videos, playlists, comments, captions, live streaming and subscriptions. The extension's **Coverage** page lists the two methods without a step and why.
+
+YouTube Analytics reports are in the separate extension [YouTube Analytics](https://github.com/Flow-Steward/ext-marketing-youtube-analytics) (`flowsteward.youtube-analytics`).
 
 ## Get started
 
 1. In Flow Steward, open **Extensions → Catalog**, find **YouTube** and install it.
-2. In Google Cloud, enable **YouTube Data API v3** and **YouTube Analytics API**, configure the OAuth consent screen and create an OAuth client of the type **Web application**. Add the OAuth Redirect URI shown on the extension's **Connection** page as an authorized redirect URI.
+2. In Google Cloud, enable **YouTube Data API v3**, configure the OAuth consent screen and create an OAuth client of the type **Web application**. Add the OAuth Redirect URI shown on the extension's **Connection** page as an authorized redirect URI.
 3. On the **Connection** page, enter the client's **Client ID** and **Client Secret**, choose a connection type, press **Connect**, sign in with the channel's Google account and allow the access. Then press **Test connection**.
 4. Build your first workflow: for example, a video file from an earlier step → **Upload video** → **Get video processing status** later → **Add video to playlist**.
 
 ## Requirements
 
 - A YouTube channel and its Google account.
-- A Google Cloud project with YouTube Data API v3 and YouTube Analytics API enabled and an OAuth client of the type Web application; its Client ID and Client Secret are entered on the Connection page. Whether Google must verify the app follows Google's policies for the scopes it asks for.
-- The connection type with the scopes your steps need: **YouTube channel** (`youtube.force-ssl`, `yt-analytics.readonly`), **YouTube channel with revenue and memberships** (adds revenue metrics and channel memberships) or **YouTube content owner** (for YouTube partners' CMS accounts).
+- A Google Cloud project with YouTube Data API v3 enabled and an OAuth client of the type Web application; its Client ID and Client Secret are entered on the Connection page. Whether Google must verify the app follows Google's policies for the scopes it asks for.
+- The connection type with the scopes your steps need: **YouTube channel** (`youtube.force-ssl`), **YouTube channel with memberships** (adds `youtube.channel-memberships.creator` for channel members) or **YouTube content owner** (for YouTube partners' CMS accounts).
 - YouTube quota: every request counts against the daily quota of your Google Cloud project; each step names its cost.
 - A video uploaded from a workflow file can be up to 200 MiB, the size Flow Steward allows for a workflow file by default (YouTube itself takes up to 256 GiB).
 - Flow Steward 0.9.23 or later.
@@ -86,7 +86,7 @@ Yes. A test run of a workflow never sends changes; reads run as usual.
 
 ## In your language
 
-Интеграция YouTube с Flow Steward автоматизирует работу канала без программирования: загрузка видео из файла workflow, обновление названий и описаний, плейлисты, ответы на комментарии и отчёты YouTube Analytics. Каждый из 89 методов YouTube Data API v3 и YouTube Analytics API v2 доступен как шаг workflow. Для подключения нужен собственный OAuth-клиент Google Cloud (Client ID и Client Secret).
+Интеграция YouTube с Flow Steward автоматизирует работу канала без программирования: загрузка видео из файла workflow, обновление названий и описаний, плейлисты и ответы на комментарии. 81 из 83 методов YouTube Data API v3 доступен как шаг workflow; отчёты YouTube Analytics — в отдельном расширении YouTube Analytics. Для подключения нужен собственный OAuth-клиент Google Cloud (Client ID и Client Secret).
 
 ## Links
 
@@ -94,12 +94,12 @@ Yes. A test run of a workflow never sends changes; reads run as usual.
 - Flow Steward extension catalog: <https://github.com/Flow-Steward/extensions>
 - Issues and support: <https://github.com/Flow-Steward/ext-media-youtube/issues>
 - YouTube Data API documentation: <https://developers.google.com/youtube/v3>
-- YouTube Analytics API documentation: <https://developers.google.com/youtube/analytics>
+- YouTube Analytics extension: <https://github.com/Flow-Steward/ext-marketing-youtube-analytics>
 - Changes: [CHANGELOG.md](CHANGELOG.md)
 
 ## For developers
 
-Every step is generated from the two Discovery documents pinned in `tests/reference/` (`youtube_v3.json`, revision 20261119, and `youtubeAnalytics_v2.json`, revision 20261122, downloaded 2026-11-23) and from the quota table extracted from YouTube's documentation (`tests/reference/quota_costs.json`). To rebuild the contracts:
+Every step is generated from the Discovery document pinned in `tests/reference/` (`youtube_v3.json`, revision 20261119, downloaded 2026-11-23) and from the quota table extracted from YouTube's documentation (`tests/reference/quota_costs.json`). To rebuild the contracts:
 
 ```bash
 python3 tests/reference/build_contracts.py

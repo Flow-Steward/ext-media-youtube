@@ -9,7 +9,6 @@ pages:
 - ref: pages/youtube-api-comments.yaml
 - ref: pages/youtube-api-live.yaml
 - ref: pages/youtube-api-subscriptions.yaml
-- ref: pages/youtube-api-analytics.yaml
 - ref: pages/coverage.yaml
 - ref: pages/changelog.yaml
 - ref: pages/support.yaml
