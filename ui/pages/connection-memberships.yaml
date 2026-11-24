@@ -1,0 +1,21 @@
+page_id: connection-memberships
+title: Connection with memberships
+description: Connect a channel that also reads its members and membership levels.
+project_scoped: true
+components:
+  - component_id: youtube_monetized_connections
+    type: connection_form
+    title: YouTube channels with memberships
+    description: Channels authorized also for channel members and membership levels. Flow Steward keeps the authorization, renews it and never shows it again.
+    data:
+      oauth_provider_id: google_youtube
+      connection_type: youtube_channel_monetized
+      oauth_intent: connect
+      test_action: test_connection
+  - component_id: memberships_when
+    type: markdown
+    title: When to use it
+    body: |
+      For **Get channel members** and **Get membership levels**, which YouTube allows only with the scope `youtube.channel-memberships.creator`, and for every other step as well. Flow Steward asks Google for `youtube.force-ssl` and `youtube.channel-memberships.creator`.
+
+      The channel must have channel memberships turned on in YouTube Studio. The Client ID and Client Secret are the same as for the other connection types (see **Connection**).

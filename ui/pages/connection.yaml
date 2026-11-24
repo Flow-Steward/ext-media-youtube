@@ -1,6 +1,7 @@
 page_id: connection
 title: Connection
 description: Connect a YouTube channel to this project.
+project_scoped: true
 components:
   - component_id: youtube_channel_connections
     type: connection_form
@@ -11,24 +12,11 @@ components:
       connection_type: youtube_channel
       oauth_intent: connect
       test_action: test_connection
-  - component_id: youtube_monetized_connections
-    type: connection_form
-    title: YouTube channels with memberships
-    description: Channels authorized also for channel members and membership levels.
-    data:
-      oauth_provider_id: google_youtube
-      connection_type: youtube_channel_monetized
-      oauth_intent: connect
-      test_action: test_connection
-  - component_id: youtube_owner_connections
-    type: connection_form
-    title: YouTube content owners
-    description: A YouTube partner's CMS account, acting for its channels.
-    data:
-      oauth_provider_id: google_youtube
-      connection_type: youtube_content_owner
-      oauth_intent: connect
-      test_action: test_connection
+  - component_id: connection_when
+    type: markdown
+    title: When to use it
+    body: |
+      For almost every step: videos, playlists, comments, captions, live streams, subscriptions and the channel itself. Flow Steward asks Google for the scope `youtube.force-ssl`. For channel members and membership levels use **Connection with memberships**; for a YouTube partner's CMS account use **Content owner connection**.
   - component_id: connection_how
     anchor_id: client-credentials
     type: markdown

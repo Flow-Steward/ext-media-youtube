@@ -1,0 +1,21 @@
+page_id: connection-content-owner
+title: Content owner connection
+description: Connect a YouTube partner's CMS account and act for its channels.
+project_scoped: true
+components:
+  - component_id: youtube_owner_connections
+    type: connection_form
+    title: YouTube content owners
+    description: A YouTube partner's CMS account, acting for its channels. Flow Steward keeps the authorization, renews it and never shows it again.
+    data:
+      oauth_provider_id: google_youtube
+      connection_type: youtube_content_owner
+      oauth_intent: connect
+      test_action: test_connection
+  - component_id: owner_when
+    type: markdown
+    title: When to use it
+    body: |
+      For YouTube partners who manage many channels from a YouTube CMS (Content Manager) account. Steps then take `on_behalf_of_content_owner` (the content owner's ID) and, where a method allows it, `on_behalf_of_content_owner_channel` (the channel acted for). Flow Steward asks Google for `youtube.force-ssl`, `youtubepartner` and `youtubepartner-channel-audit`.
+
+      Sign in on Google's page with an account linked to the content owner. The Client ID and Client Secret are the same as for the other connection types (see **Connection**).

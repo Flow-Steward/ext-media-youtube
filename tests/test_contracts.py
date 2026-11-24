@@ -73,7 +73,7 @@ def registry_counts(registry: dict[str, Any]) -> dict[str, int]:
 
 
 def test_the_coverage_page_lists_the_exclusions_and_the_reporting_api() -> None:
-    body = load("ui/pages/coverage.yaml")["components"][0]["body"]
+    body = load("ui/pages/api-coverage.yaml")["components"][0]["body"]
     for method_id in names.EXCLUDED:
         assert method_id in body
     assert "YouTube Reporting API" in body
@@ -402,12 +402,12 @@ def test_the_icon_is_a_square_png_with_the_logo_at_least_100_px_tall() -> None:
 
 def test_version_step_limit_and_changelog() -> None:
     manifest = load("extension.yaml")
-    assert manifest["version"] == "0.1.1" == build_contracts.VERSION
+    assert manifest["version"] == "0.1.2" == build_contracts.VERSION
     assert manifest["entrypoint"]["timeout_seconds"] == 600
     assert limits.STEP_TIMEOUT_SECONDS == 600
     changelog = (BUNDLE / "CHANGELOG.md").read_text(encoding="utf-8")
-    assert changelog.splitlines()[2].startswith("## 0.1.1")
-    assert "0.1.1" in json.dumps(load("ui/pages/changelog.yaml"))
+    assert changelog.splitlines()[2].startswith("## 0.1.2")
+    assert "0.1.2" in json.dumps(load("ui/pages/changelog.yaml"))
 
 
 def test_vendor_listing_and_repository() -> None:
@@ -524,5 +524,5 @@ def test_posts_are_excluded_with_their_reason() -> None:
         "posts"
         not in json.loads((BUNDLE / "tests/reference/youtube_v3.json").read_text())["resources"]
     )
-    coverage = (BUNDLE / "ui/pages/coverage.yaml").read_text()
+    coverage = (BUNDLE / "ui/pages/api-coverage.yaml").read_text()
     assert "posts.imageUpload" in coverage

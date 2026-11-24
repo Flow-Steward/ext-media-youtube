@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 — 2026-11-24
+
+- Every input has one readable label in every step; inputs that mean the same are described the same.
+- New pages: a detailed Setup Guide (Google Cloud project, consent screen, OAuth client, connecting a channel, connection types, quota, uploads, errors), one page per connection type, and YouTube API coverage with every step's YouTube method, quota cost, inputs, body fields and returned fields, generated from the pinned Discovery document.
+- A detailed README with what you can automate.
+
 ## 0.1.1 — 2026-11-24
 
 - The tests check the install folder from the extension id, not the checkout folder, so they pass in the repository's own checkout (v0.1.0 was tagged, but its release did not build).

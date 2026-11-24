@@ -33,11 +33,12 @@ BUNDLE = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
 import composite_specs  # noqa: E402
+import field_texts  # noqa: E402
 import names  # noqa: E402
 
 STEP_IDS = HERE / "step_ids.json"
 QUOTA = HERE / "quota_costs.json"
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 EXTENSION_ID = "flowsteward.youtube"
 REPOSITORY = "https://github.com/Flow-Steward/ext-media-youtube"
 HEADER = (
@@ -67,13 +68,12 @@ EXCLUDED_PRODUCTS = {
         f"({ANALYTICS_EXTENSION['id']}, {ANALYTICS_EXTENSION['url']})."
     ),
     "YouTube Reporting API": (
-        "Bulk reports YouTube prepares as files on a schedule: a separate product with its "
-        "own Discovery document (youtubereporting v1), not included in this release."
+        "Bulk reports YouTube prepares as files on a schedule: a product of its own, with "
+        "its own Discovery document (youtubereporting v1)."
     ),
     "Posts (posts.list, posts.insert, posts.update, posts.delete, posts.imageUpload)": (
-        'Not in the pinned Discovery document; Google documents the resource as "in a pilot '
-        'phase with access limited to select launch partners", so only approved Google '
-        "Cloud projects can call it "
+        "Not in the pinned Discovery document; Google opens the resource to select launch "
+        "partners, so only approved Google Cloud projects can call it "
         "(https://developers.google.com/youtube/v3/docs/posts)."
     ),
 }
@@ -951,12 +951,13 @@ def step_ui_manifest(rows: list[dict[str, Any]]) -> dict[str, Any]:
     for row in rows:
         fields = []
         for item in row["inputs"]:
+            label, help_text = field_texts.text_of(item["name"], item["schema"].get("description"))
             field: dict[str, Any] = {
                 "name": item["name"],
-                "label": item["schema"].get("title") or item["name"],
+                "label": label,
                 "widget_type": item["widget"],
                 "required": item["required"],
-                "help_text": (item["schema"].get("description") or item["name"])[:400],
+                "help_text": help_text[:400],
             }
             if item.get("options"):
                 field["options"] = [{"label": v, "value": v} for v in item["options"]]
@@ -1376,7 +1377,7 @@ def coverage_page(registry: dict[str, Any]) -> dict[str, Any]:
         [
             f"The pinned Discovery document of the YouTube Data API v3 (revision "
             f"{sources['data']['revision']}, downloaded {sources['data']['downloaded']}) lists "
-            f"{data_total} methods; **{total} of them have their own step** in this version.",
+            f"{data_total} methods; **{total} of them have their own step**.",
             "",
             f"- **{reads} reads** (GET) and **{total - reads} changes**. Test runs never send "
             "changes.",
@@ -1389,7 +1390,7 @@ def coverage_page(registry: dict[str, Any]) -> dict[str, Any]:
             "",
             excluded,
             "",
-            "Not in this release:",
+            "Other YouTube APIs and resources:",
             "",
             products,
             "",
@@ -1414,6 +1415,117 @@ def coverage_page(registry: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _resource_fields(api: str, ref: str | None) -> tuple[str, list[str], str | None, list[str]]:
+    """The fields of a response schema, and for a list answer the fields of its items."""
+    if not ref:
+        return "", [], None, []
+    schemas = document(api)["schemas"]
+    top = schemas.get(ref, {}).get("properties", {})
+    items = top.get("items", {})
+    item_ref = (items.get("items") or {}).get("$ref") if items.get("type") == "array" else None
+    item_fields = list(schemas.get(item_ref, {}).get("properties", {})) if item_ref else []
+    return ref, list(top), item_ref, item_fields
+
+
+def api_coverage_page(registry: dict[str, Any], rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Every step: the YouTube method it calls, its inputs, the body fields it sends and the
+    fields YouTube returns; then the methods without a step and why."""
+    by_method = {m["id"]: (api, m) for api, m in all_methods()}
+    by_id = {sid: e for sid, e in registry["operations"].items()}
+    detail: list[str] = []
+    for area in ["Everyday", *PAGE_IDS]:
+        detail += [f"## {area}", ""]
+        for row in (r for r in rows if r["area"] == area):
+            inputs = [
+                f"`{i['name']}`" + (" (required)" if i["required"] else "") for i in row["inputs"]
+            ]
+            detail += [f"### {row['title']} (`{row['id']}`)", ""]
+            entry = by_id.get(row["id"])
+            if entry is None:
+                detail += ["YouTube: " + ", ".join(f"`{c}`" for c in row["calls"]) + ".", ""]
+                detail += ["Inputs: " + (", ".join(inputs) or "none") + ".", ""]
+                outputs = [
+                    f"`{o['name']}`"
+                    for o in row["outputs"]
+                    if o["name"] not in {"external_effect_status", "definitely_no_external_effect"}
+                ]
+                detail += ["Returns: " + ", ".join(outputs) + ".", ""]
+                continue
+            cost = f", quota cost: {entry['quota']}" if entry.get("quota") else ""
+            detail += [
+                f"YouTube: `{entry['vendor_method_id']}` (`{entry['method']} {entry['path']}`)"
+                f"{cost}.",
+                "",
+                "Inputs: " + (", ".join(inputs) or "none") + ".",
+                "",
+            ]
+            body = (entry.get("body") or {}).get("json")
+            if body:
+                detail += [
+                    f"Body (`body`, a {body['schema']}): "
+                    + ", ".join(f"`{f}`" for f in body["properties"])
+                    + ".",
+                    "",
+                ]
+            if (entry.get("body") or {}).get("upload"):
+                detail += ["File: `file`, sent by YouTube's resumable upload.", ""]
+            api, method = by_method[entry["vendor_method_id"]]
+            ref, top, item_ref, item_fields = _resource_fields(
+                api, (method.get("response") or {}).get("$ref")
+            )
+            if item_ref:
+                detail += [
+                    f"Returns a {ref}; each item of `items` is a {item_ref} with "
+                    + ", ".join(f"`{f}`" for f in item_fields)
+                    + ".",
+                    "",
+                ]
+            elif ref:
+                detail += [
+                    f"Returns a {ref} with " + ", ".join(f"`{f}`" for f in top) + ".",
+                    "",
+                ]
+            elif entry["answer"] == "file":
+                detail += ["Returns the file as a workflow file in `file`.", ""]
+            else:
+                detail += ["YouTube answers without a body; the step returns its status.", ""]
+    excluded = [f"- `{mid}`: {reason}" for mid, reason in registry["excluded"].items()]
+    products = [f"- **{name}**: {reason}" for name, reason in EXCLUDED_PRODUCTS.items()]
+    offered = [
+        "Every method of the pinned Discovery document has its own step, except these, "
+        "for the reason given:",
+        "",
+        *excluded,
+        "",
+        "Other YouTube APIs and resources:",
+        "",
+        *products,
+    ]
+    return {
+        "page_id": "api-coverage",
+        "title": "YouTube API coverage",
+        "description": (
+            "Every step, the YouTube method it calls, its inputs and what it returns, and "
+            "what is deliberately not offered."
+        ),
+        "components": [
+            coverage_page(registry)["components"][0],
+            {
+                "component_id": "coverage_detail",
+                "type": "markdown",
+                "title": "Every step",
+                "body": "\n".join(detail) + "\n",
+            },
+            {
+                "component_id": "coverage_not_offered",
+                "type": "markdown",
+                "title": "Not offered as steps",
+                "body": "\n".join(offered) + "\n",
+            },
+        ],
+    }
+
+
 # -- output --------------------------------------------------------------------------------
 
 
@@ -1433,7 +1545,7 @@ def outputs() -> dict[str, Any]:
         "contracts/artifact_policies.yaml": artifact_policies(rows),
         "contracts/connection_types.yaml": connection_types(),
         "ui/actions/actions.yaml": actions_manifest(rows),
-        "ui/pages/coverage.yaml": coverage_page(registry),
+        "ui/pages/api-coverage.yaml": api_coverage_page(registry, rows),
         "extension.yaml": extension_yaml(rows, registry),
     }
     out.update(api_pages(rows))

@@ -2,6 +2,8 @@ version: '1'
 pages:
 - ref: pages/setup-guide.yaml
 - ref: pages/connection.yaml
+- ref: pages/connection-memberships.yaml
+- ref: pages/connection-content-owner.yaml
 - ref: pages/youtube-api.yaml
 - ref: pages/youtube-api-channels.yaml
 - ref: pages/youtube-api-videos.yaml
@@ -9,6 +11,6 @@ pages:
 - ref: pages/youtube-api-comments.yaml
 - ref: pages/youtube-api-live.yaml
 - ref: pages/youtube-api-subscriptions.yaml
-- ref: pages/coverage.yaml
+- ref: pages/api-coverage.yaml
 - ref: pages/changelog.yaml
 - ref: pages/support.yaml
