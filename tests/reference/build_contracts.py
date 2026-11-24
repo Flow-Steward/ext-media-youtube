@@ -37,7 +37,7 @@ import names  # noqa: E402
 
 STEP_IDS = HERE / "step_ids.json"
 QUOTA = HERE / "quota_costs.json"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 EXTENSION_ID = "flowsteward.youtube"
 REPOSITORY = "https://github.com/Flow-Steward/ext-media-youtube"
 HEADER = (

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 — 2026-11-24
+
+- The tests check the install folder from the extension id, not the checkout folder, so they pass in the repository's own checkout (v0.1.0 was tagged, but its release did not build).
+
 ## 0.1.0 — 2026-11-23
 
 First release, built on the Discovery document of the YouTube Data API v3 (revision 20261119, SHA-256 `011818b42508629448e4839de27972272b86048d391e85b875447e85e563a316`), downloaded 2026-11-23.
