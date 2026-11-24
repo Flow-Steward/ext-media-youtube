@@ -61,6 +61,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - warnings
   error_codes: *id001
 - action_id: list_channel_videos
@@ -89,6 +90,9 @@ actions:
   - name: page_token
     type: string
     required: false
+  - name: skip
+    type: integer
+    required: false
   - name: output
     type: string
     required: false
@@ -99,6 +103,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - file
   - warnings
   error_codes: *id001
@@ -380,6 +385,9 @@ actions:
   - name: page_token
     type: string
     required: false
+  - name: skip
+    type: integer
+    required: false
   - name: output
     type: string
     required: false
@@ -388,6 +396,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - file
   - warnings
   error_codes: *id001
@@ -443,11 +452,15 @@ actions:
   - name: page_token
     type: string
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - playlists
   - count
   - complete
   - next_page_token
+  - next_skip
   - warnings
   error_codes: *id001
 - action_id: create_playlist
@@ -582,6 +595,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -589,6 +605,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -948,6 +965,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -955,6 +975,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -998,6 +1019,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -1005,6 +1029,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -1297,6 +1322,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -1304,6 +1332,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -1682,6 +1711,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -1689,6 +1721,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -1833,6 +1866,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -1840,6 +1876,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -1992,6 +2029,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -1999,6 +2039,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -2147,6 +2188,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -2154,6 +2198,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -2334,6 +2379,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -2341,6 +2389,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -2415,6 +2464,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -2422,6 +2474,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -2841,6 +2894,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -2848,6 +2904,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -3134,6 +3191,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -3141,6 +3201,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -3491,6 +3552,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -3498,6 +3562,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -3598,6 +3663,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -3605,6 +3673,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001
@@ -3666,6 +3735,9 @@ actions:
   - name: max_items
     type: integer
     required: false
+  - name: skip
+    type: integer
+    required: false
   result_fields:
   - status
   - data
@@ -3673,6 +3745,7 @@ actions:
   - count
   - complete
   - next_page_token
+  - next_skip
   - etag
   - warnings
   error_codes: *id001

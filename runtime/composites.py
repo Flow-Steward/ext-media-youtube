@@ -49,6 +49,31 @@ MAX_DESCRIPTION = 20000
 MAX_TAGS = 500
 MAX_TAG = 500
 MAX_TEXT = 20000
+#: A YouTube ID as this extension accepts it (video IDs have 11 characters, channel IDs
+#: 24, playlist IDs 34; the bound leaves room without accepting arbitrary text).
+MAX_ID_LENGTH = 100
+#: An RFC 3339 date and time with a fraction and an offset fits in 40 characters.
+MAX_DATE_TIME_LENGTH = 40
+#: A video category ID (a small number as text).
+MAX_CATEGORY_ID_LENGTH = 20
+#: A BCP-47 language tag: RFC 5646 section 4.4.1 asks implementations to accept at least
+#: 35 characters.
+MAX_LANGUAGE_LENGTH = 35
+#: A comment ID, which YouTube gives longer than a video ID.
+MAX_COMMENT_ID_LENGTH = 200
+#: Search terms of a comment list (a safety bound).
+MAX_SEARCH_TERMS_LENGTH = 500
+#: Channels a user's "my channels" list can hold (a safety bound; a Google account has
+#: far fewer).
+MAX_MY_CHANNELS = 1000
+#: Records the "all" steps read by default and at most (safety bounds that keep a step
+#: within its time and output).
+DEFAULT_MAX_VIDEOS = 5000
+DEFAULT_MAX_PLAYLISTS = 5000
+LARGEST_MAX_VIDEOS = 50_000
+LARGEST_MAX_PLAYLISTS = 50_000
+DEFAULT_MAX_COMMENTS = 10_000
+LARGEST_MAX_COMMENTS = 100_000
 _ID_CHARS = frozenset("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_")
 
 PROCESSING_STEP = "get_video_processing_status"
@@ -66,7 +91,9 @@ def _closed(given: Mapping[str, Any], allowed: set[str]) -> dict[str, Any]:
     rest = {k: v for k, v in given.items() if k != "connection_ref"}
     unknown = sorted(set(rest) - allowed)
     if unknown:
-        raise invalid(f"The step input has unknown fields: {', '.join(unknown[:10])}")
+        raise invalid(
+            f"The step input has unknown fields: {', '.join(unknown[: errors.LISTED_NAMES])}"
+        )
     return rest
 
 
@@ -79,8 +106,8 @@ def _read(context: Context, operation_id: str, given: Mapping[str, Any]) -> Any:
 
 
 def _ident(value: Any, name: str) -> str:
-    """A YouTube id: letters, digits, - and _ (at most 100)."""
-    result = text(value, name, max_length=100)
+    """A YouTube id: letters, digits, - and _ (at most MAX_ID_LENGTH)."""
+    result = text(value, name, max_length=MAX_ID_LENGTH)
     if any(ch not in _ID_CHARS for ch in result):
         raise invalid(f"{name} must be a YouTube ID (letters, digits, - and _)")
     return result
@@ -137,7 +164,7 @@ def _output_choice(given: Mapping[str, Any]) -> bool:
 
 
 def _publish_at(given: Mapping[str, Any], privacy: str | None) -> str | None:
-    value = _opt_text(given, "publish_at", max_length=40)
+    value = _opt_text(given, "publish_at", max_length=MAX_DATE_TIME_LENGTH)
     if value is None:
         return None
     if "T" not in value or not (value.endswith("Z") or value[-6] in "+-"):
@@ -202,9 +229,11 @@ def test_connection(context: Context) -> dict[str, Any]:
     handle = snippet.get("customUrl")
     return {
         "connected": True,
-        "channel_id": errors.safe_text(channel["id"], 100),
-        "title": errors.safe_text(title, 200) if isinstance(title, str) else None,
-        "custom_url": errors.safe_text(handle, 200) if isinstance(handle, str) else None,
+        "channel_id": errors.safe_text(channel["id"], errors.ID_TEXT),
+        "title": errors.safe_text(title, errors.NAME_TEXT) if isinstance(title, str) else None,
+        "custom_url": errors.safe_text(handle, errors.NAME_TEXT)
+        if isinstance(handle, str)
+        else None,
         "connection_type": context.connection.connection_type,
         "warnings": [],
     }
@@ -216,8 +245,10 @@ def verify_identity(context: Context) -> dict[str, Any]:
     snippet = _obj(channel.get("snippet"))
     title = snippet.get("title")
     return {
-        "subject": errors.safe_text(channel["id"], 100),
-        "verified_display_name": errors.safe_text(title, 200) if isinstance(title, str) else None,
+        "subject": errors.safe_text(channel["id"], errors.ID_TEXT),
+        "verified_display_name": errors.safe_text(title, errors.NAME_TEXT)
+        if isinstance(title, str)
+        else None,
         "health": "ok",
     }
 
@@ -235,6 +266,7 @@ def _list_all(
     to_file: bool,
     out_key: str,
     extra: dict[str, Any] | None = None,
+    skip: int = 0,
 ) -> dict[str, Any]:
     entry = generic.spec(operation_id)
     pager = entry["pager"]
@@ -257,6 +289,7 @@ def _list_all(
         to_file=to_file,
         out_key=out_key,
         extra=extra,
+        skip=skip,
     )
 
 
@@ -268,14 +301,16 @@ def list_my_channels(context: Context) -> dict[str, Any]:
         "get_channels",
         {"part": ["snippet", "statistics", "contentDetails", "status"], "mine": True},
         start=None,
-        most=1000,
+        most=MAX_MY_CHANNELS,
         to_file=False,
         out_key="channels",
     )
 
 
 def list_channel_videos(context: Context) -> dict[str, Any]:
-    given = _closed(context.operation_input, {"channel_id", "max_videos", "page_token", "output"})
+    given = _closed(
+        context.operation_input, {"channel_id", "max_videos", "page_token", "skip", "output"}
+    )
     query = _channel_query(given)
     data = _read(context, "get_channels", {"part": ["contentDetails"], **query})
     channel = _first_item(data, "GET /youtube/v3/channels", "channel")
@@ -289,7 +324,10 @@ def list_channel_videos(context: Context) -> dict[str, Any]:
         "get_playlist_items",
         {"part": ["snippet", "contentDetails", "status"], "playlist_id": uploads},
         start=_opt_text(given, "page_token", max_length=pages.MAX_TOKEN),
-        most=_opt_int(given, "max_videos", default=5000, low=1, high=50_000),
+        skip=_opt_int(given, "skip", default=0, low=0, high=generic.MAX_ITEMS),
+        most=_opt_int(
+            given, "max_videos", default=DEFAULT_MAX_VIDEOS, low=1, high=LARGEST_MAX_VIDEOS
+        ),
         to_file=_output_choice(given),
         out_key="videos",
         extra={
@@ -310,6 +348,7 @@ def list_video_comments(context: Context) -> dict[str, Any]:
             "include_replies",
             "max_comments",
             "page_token",
+            "skip",
             "output",
         },
     )
@@ -323,7 +362,7 @@ def list_video_comments(context: Context) -> dict[str, Any]:
     fmt = _choice(given, "text_format", TEXT_FORMATS, None)
     if fmt:
         query["text_format"] = fmt
-    terms = _opt_text(given, "search_terms", max_length=500)
+    terms = _opt_text(given, "search_terms", max_length=MAX_SEARCH_TERMS_LENGTH)
     if terms:
         query["search_terms"] = terms
     return _list_all(
@@ -331,20 +370,30 @@ def list_video_comments(context: Context) -> dict[str, Any]:
         "get_comment_threads",
         query,
         start=_opt_text(given, "page_token", max_length=pages.MAX_TOKEN),
-        most=_opt_int(given, "max_comments", default=10_000, low=1, high=100_000),
+        skip=_opt_int(given, "skip", default=0, low=0, high=generic.MAX_ITEMS),
+        most=_opt_int(
+            given, "max_comments", default=DEFAULT_MAX_COMMENTS, low=1, high=LARGEST_MAX_COMMENTS
+        ),
         to_file=_output_choice(given),
         out_key="comments",
     )
 
 
 def list_my_playlists(context: Context) -> dict[str, Any]:
-    given = _closed(context.operation_input, {"max_playlists", "page_token"})
+    given = _closed(context.operation_input, {"max_playlists", "page_token", "skip"})
     return _list_all(
         context,
         "get_playlists",
         {"part": ["snippet", "contentDetails", "status"], "mine": True},
         start=_opt_text(given, "page_token", max_length=pages.MAX_TOKEN),
-        most=_opt_int(given, "max_playlists", default=5000, low=1, high=50_000),
+        skip=_opt_int(given, "skip", default=0, low=0, high=generic.MAX_ITEMS),
+        most=_opt_int(
+            given,
+            "max_playlists",
+            default=DEFAULT_MAX_PLAYLISTS,
+            low=1,
+            high=LARGEST_MAX_PLAYLISTS,
+        ),
         to_file=False,
         out_key="playlists",
     )
@@ -366,7 +415,7 @@ def get_videos_by_id(context: Context) -> dict[str, Any]:
     given = _closed(context.operation_input, {"video_ids", "parts"})
     ids = _id_list(given, "video_ids", most=MAX_VIDEO_IDS)
     parts = _parts(given)
-    envelope = {"count": 10**9, "missing_ids": ids, "unread_ids": ids}
+    envelope = {"count": pages.WIDEST_COUNT, "missing_ids": ids, "unread_ids": ids}
     collected = pages.Pages(False, "videos", envelope)
     returned: set[str] = set()
     unread: list[str] = []
@@ -513,12 +562,12 @@ def _video_fields(given: Mapping[str, Any], *, title_required: bool) -> dict[str
         fields["description"] = value
     if "tags" in given:
         fields["tags"] = _list(given, "tags", max_items=MAX_TAGS, max_length=MAX_TAG)
-    category = _opt_text(given, "category_id", max_length=20)
+    category = _opt_text(given, "category_id", max_length=MAX_CATEGORY_ID_LENGTH)
     if category is not None:
         if not category.isdigit():
             raise invalid("category_id must be a video category ID such as 22")
         fields["categoryId"] = category
-    language = _opt_text(given, "default_language", max_length=35)
+    language = _opt_text(given, "default_language", max_length=MAX_LANGUAGE_LENGTH)
     if language is not None:
         fields["defaultLanguage"] = language
     return fields
@@ -592,19 +641,21 @@ def upload_video(context: Context) -> dict[str, Any]:
     query: list[tuple[str, str]] = [("part", "snippet"), ("part", "status")]
     if notify is not None:
         query.append(("notifySubscribers", "true" if notify else "false"))
-    content = files.read(context, handle, max_bytes=entry["body"]["upload"]["max_bytes"])
+    content, total = files.spool(context, handle, max_bytes=entry["body"]["upload"]["max_bytes"])
     shown = f"{entry['method']} {entry['path']}"
-    answer = upload.resumable(
-        context,
-        method=entry["method"],
-        upload_path=entry["body"]["upload"]["path"],
-        api=entry["api"],
-        shown=shown,
-        query=query,
-        metadata=dumps_json(metadata).encode("utf-8"),
-        content=content,
-        content_type=kind,
-    )
+    with content:
+        answer = upload.resumable(
+            context,
+            method=entry["method"],
+            upload_path=entry["body"]["upload"]["path"],
+            api=entry["api"],
+            shown=shown,
+            query=query,
+            metadata=dumps_json(metadata).encode("utf-8"),
+            content=content,
+            total=total,
+            content_type=kind,
+        )
     out = _outcome(context, entry, answer, shown, step=outcome.CREATE, what="video")
     video = _obj(out["data"])
     status = _obj(video.get("status"))
@@ -613,7 +664,7 @@ def upload_video(context: Context) -> dict[str, Any]:
         "upload_status": status.get("uploadStatus")
         if isinstance(status.get("uploadStatus"), str)
         else None,
-        "size_bytes": len(content),
+        "size_bytes": total,
         "data": out["data"],
         "processing": out["processing"],
         "applied": out["applied"],
@@ -712,19 +763,21 @@ def set_video_thumbnail(context: Context) -> dict[str, Any]:
     given = _closed(context.operation_input, THUMBNAIL_INPUTS)
     video_id, handle, kind = _thumbnail_plan(given)
     entry = generic.spec("set_video_thumbnail_file")
-    content = files.read(context, handle, max_bytes=entry["body"]["upload"]["max_bytes"])
+    content, total = files.spool(context, handle, max_bytes=entry["body"]["upload"]["max_bytes"])
     shown = f"{entry['method']} {entry['path']}"
-    answer = upload.resumable(
-        context,
-        method=entry["method"],
-        upload_path=entry["body"]["upload"]["path"],
-        api=entry["api"],
-        shown=shown,
-        query=[("videoId", video_id)],
-        metadata=None,
-        content=content,
-        content_type=kind,
-    )
+    with content:
+        answer = upload.resumable(
+            context,
+            method=entry["method"],
+            upload_path=entry["body"]["upload"]["path"],
+            api=entry["api"],
+            shown=shown,
+            query=[("videoId", video_id)],
+            metadata=None,
+            content=content,
+            total=total,
+            content_type=kind,
+        )
     out = _outcome(context, entry, answer, shown, step=outcome.OTHER, what="thumbnail")
     return {
         "video_id": video_id,
@@ -740,7 +793,7 @@ REPLY_INPUTS = {"parent_id", "text"}
 
 
 def _reply_body(given: Mapping[str, Any]) -> dict[str, Any]:
-    parent = text(given.get("parent_id"), "parent_id", max_length=200)
+    parent = text(given.get("parent_id"), "parent_id", max_length=MAX_COMMENT_ID_LENGTH)
     if any(ch not in _ID_CHARS for ch in parent):
         raise invalid("parent_id must be a YouTube comment ID")
     value = given.get("text")
@@ -785,7 +838,7 @@ def _playlist_body(given: Mapping[str, Any]) -> dict[str, Any]:
         snippet["description"] = value
     if "tags" in given:
         snippet["tags"] = _list(given, "tags", max_items=MAX_TAGS, max_length=MAX_TAG)
-    language = _opt_text(given, "default_language", max_length=35)
+    language = _opt_text(given, "default_language", max_length=MAX_LANGUAGE_LENGTH)
     if language is not None:
         snippet["defaultLanguage"] = language
     privacy = _choice(given, "privacy_status", PRIVACY, "private")

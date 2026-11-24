@@ -7,8 +7,13 @@ is full or the time left is too short; then it returns what it read with ``compl
 false and ``next_page_token``, the token of the first page not returned. A read never
 fails because of that.
 
-The continuation is exact: a page is returned whole or not at all, so the next step
-started with ``next_page_token`` reads exactly the records not returned. A token is
+The continuation is exact: the result never holds more than the asked maximum, and the
+next step started with ``next_page_token`` and ``skip`` (the ``next_skip`` this step
+returns) reads exactly the records not returned. A method without a page size
+answers whole pages (or YouTube answers more than asked): when a page holds more records than are still asked
+for, only those are taken, and ``next_skip`` says how many records of that page were
+already returned; the next step asks for the same page and leaves them out. A page that
+does not fit the output is left whole for the next step. A token is
 always sent with the page size it was issued for: the page size is changed only for the
 first page of a list (no token sent yet), which is asked again with half the records
 when it does not fit; the rest of the list then keeps that smaller size. A page token
@@ -36,6 +41,13 @@ MAX_STOP_WARNING = 600
 _STOP_RESERVE = "x" * MAX_STOP_WARNING
 #: The longest page token kept for the continuation.
 MAX_TOKEN = 1000
+#: Time a page needs after its request is answered (reading and measuring it; our
+#: decision): no page is started with less than this on top of the request's own window.
+PAGE_READ_SECONDS = 15
+#: The longest workflow file handle the envelope reserves room for.
+WIDEST_HANDLE = 100
+#: The widest count the envelope reserves room for (more than any list here holds).
+WIDEST_COUNT = 10**9
 FILE_CONTENT_TYPE = "application/json"
 MAX_FILE_BYTES = files.MAX_DOWNLOAD_BYTES - 1024
 
@@ -103,7 +115,7 @@ def too_large_answer(exc: ExtensionError) -> bool:
 
 def room(context: Context) -> bool:
     """Whether another page can still be started and read in time."""
-    return context.transport.remaining() >= MIN_CALL_WINDOW_SECONDS + 15
+    return context.transport.remaining() >= MIN_CALL_WINDOW_SECONDS + PAGE_READ_SECONDS
 
 
 def out_of_time(context: Context) -> ExtensionError:
@@ -194,6 +206,7 @@ def read_all(context: Context, operation_id: str, plan: Any) -> dict[str, Any]:
         most=plan.max_items,
         to_file=False,
         out_key="items",
+        skip=plan.skip,
     )
     return {"status": last.get("status"), **result, "etag": None}
 
@@ -216,14 +229,17 @@ def collect(
     to_file: bool,
     out_key: str,
     extra: dict[str, Any] | None = None,
+    skip: int = 0,
 ) -> dict[str, Any]:
-    """Pages read by token until the list ends; see the module text."""
+    """Pages read by token until the list ends; see the module text. ``skip`` records of
+    the first page (the one of ``start``) were returned by an earlier step."""
     envelope: dict[str, Any] = {
         **(extra or {}),
-        "count": 10**9,
+        "count": WIDEST_COUNT,
         "complete": False,
         "next_page_token": "x" * MAX_TOKEN,
-        "file": "x" * 100,
+        "next_skip": WIDEST_COUNT,
+        "file": "x" * WIDEST_HANDLE,
         "data": None,
     }
     pages = Pages(to_file, out_key, envelope)
@@ -234,6 +250,9 @@ def collect(
     stopped = ""
     size = max(smallest, page_size)
     meta: dict[str, Any] | None = None
+    #: Records of the page of ``token`` already returned (by an earlier step, or by this
+    #: one when it stops inside a page).
+    skip_now = skip
     while True:
         left = most - len(pages.items)
         if left <= 0:
@@ -268,6 +287,17 @@ def collect(
         except TooDeep:  # pragma: no cover - _read_json turns it into an error
             raise bad(shown, "is nested too deeply") from None
         page, following, rest = split(data, shown)
+        if skip_now > len(page):
+            raise errors.invalid(
+                f"skip is {skip_now}, but that page has {len(page)} records; the list changed "
+                "since the earlier step: read it again from the start"
+            )
+        page = page[skip_now:]
+        # A page larger than what is still asked for (a method without a page size): only
+        # the records asked for are taken, the rest are left for the next step.
+        cut = len(page) > left
+        if cut:
+            page = page[:left]
         fresh = []
         for item in page:
             key = _key(item)
@@ -295,6 +325,11 @@ def collect(
             meta = rest
         seen.update(k for k in map(_key, fresh) if k is not None)
         first = False
+        if cut:
+            skip_now += len(page)
+            stopped = f"the {most} asked for were read"
+            break
+        skip_now = 0
         if following is None:
             pages.complete = True
             break
@@ -306,9 +341,11 @@ def collect(
         pages.warnings.append(
             stop_warning(
                 f"Stopped early because {stopped}; run the step again with page_token "
-                f"{token} for the rest"
+                f"{token}" + (f" and skip {skip_now}" if skip_now else "") + " for the rest"
                 if token is not None
-                else f"Stopped early because {stopped}; run the step again for the rest"
+                else f"Stopped early because {stopped}; run the step again"
+                + (f" with skip {skip_now}" if skip_now else "")
+                + " for the rest"
             )
         )
     result: dict[str, Any] = {**(extra or {}), "count": len(pages.items)}
@@ -327,6 +364,7 @@ def collect(
         result[out_key] = pages.items
     result["complete"] = pages.complete
     result["next_page_token"] = None if pages.complete else token
+    result["next_skip"] = None if pages.complete else skip_now
     if not to_file and out_key == "items":
         result["data"] = meta
     result["warnings"] = pages.warnings

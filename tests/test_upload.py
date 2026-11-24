@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import tracemalloc
 from typing import Any
 
 import pytest
@@ -247,3 +248,50 @@ def test_a_thumbnail_is_uploaded_for_its_video() -> None:
     assert start.path == "/upload/youtube/v3/thumbnails/set"
     assert ("videoId", "V1") in start.query
     assert result["result"]["processing"] == "completed"
+
+
+#: Parts of the memory test's file.
+MEMORY_TEST_PARTS = 5
+
+
+def _counting_youtube(size: int) -> tuple[Any, list[int]]:
+    """Answers an upload like YouTube and keeps only the size of each request body, so
+    the test measures the extension's memory, not the fake's."""
+    sizes: list[int] = []
+
+    def opener(request: Any, *, timeout_seconds: float, purpose: str) -> Any:
+        sizes.append(len(request.data or b""))
+        if request.get_method() == "POST":
+            return opened()
+        sent = sum(sizes[1:])
+        if sent < size:
+            raise refuse(308, b"", Range=f"bytes=0-{sent - 1}")
+        return ok({"id": "VID1"})
+
+    return opener, sizes
+
+
+def test_an_upload_holds_about_one_part_in_memory() -> None:
+    """The file is streamed from storage to a temporary file and sent part by part: the
+    peak is about one part, not the file (the file here is five parts)."""
+    size = MEMORY_TEST_PARTS * upload.CHUNK_BYTES + 7
+    artifacts = video(size)
+    opener, sizes = _counting_youtube(size)
+    tracemalloc.start()
+    try:
+        result = run("upload_video", upload_input(), opener, artifacts=artifacts)
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    assert result["ok"] is True, result
+    assert sum(sizes[1:]) == size
+    assert peak < 2 * upload.CHUNK_BYTES, peak
+
+
+def test_a_file_larger_than_the_cap_stops_while_it_is_read(monkeypatch: Any) -> None:
+    monkeypatch.setenv("FS_EXTENSION_ARTIFACT_MAX_BYTES", str(3 * MIB))
+    fake = FakeYouTube()
+    result = run("upload_video", upload_input(), fake, artifacts=video(4 * MIB))
+    assert result["error_code"] == "invalid_payload"
+    assert "larger than the 3 MiB" in result["error"]
+    assert fake.calls == []

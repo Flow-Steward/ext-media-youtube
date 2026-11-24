@@ -50,10 +50,13 @@ from .transport import (
 
 REGISTRY_FILE = Path(__file__).resolve().parent / "registry.json"
 #: Inputs a paged step adds.
-PAGE_INPUTS = frozenset({"all_pages", "max_items"})
+PAGE_INPUTS = frozenset({"all_pages", "max_items", "skip"})
 #: The most records ``all_pages`` reads in one step.
 MAX_ITEMS = 100_000
 DEFAULT_ITEMS = 10_000
+#: A media type (type/subtype) as this extension accepts it; RFC 6838 section 4.2 allows
+#: 127 characters for each part, real ones are far shorter (our bound).
+MAX_MEDIA_TYPE_LENGTH = 100
 
 
 @cache
@@ -100,6 +103,7 @@ class Plan:
     as_file: bool = False
     all_pages: bool = False
     max_items: int = DEFAULT_ITEMS
+    skip: int = 0
 
 
 def media_allowed(accepted: list[str], chosen: str) -> bool:
@@ -120,7 +124,7 @@ def _media_type(value: Any) -> str:
     text = value.strip().lower() if isinstance(value, str) else ""
     if (
         not text
-        or len(text) > 100
+        or len(text) > MAX_MEDIA_TYPE_LENGTH
         or text.count("/") != 1
         or any(not (ch.isalnum() or ch in "/.+-_") for ch in text)
     ):
@@ -134,7 +138,9 @@ def prepare(operation_id: str, operation_input: Mapping[str, Any]) -> Plan:
     given = {k: v for k, v in operation_input.items() if k != "connection_ref"}
     unknown = sorted(set(given) - inputs_of(entry))
     if unknown:
-        raise invalid(f"The step input has unknown fields: {', '.join(unknown[:10])}")
+        raise invalid(
+            f"The step input has unknown fields: {', '.join(unknown[: errors.LISTED_NAMES])}"
+        )
     path = entry["path"]
     for prm in entry["path_params"]:
         value = given.get(prm["input"])
@@ -173,6 +179,10 @@ def prepare(operation_id: str, operation_input: Mapping[str, Any]) -> Plan:
             plan.max_items = integer(
                 {"minimum": 1, "maximum": MAX_ITEMS}, given["max_items"], "max_items"
             )
+        if given.get("skip") not in (None, ""):
+            if not flag:
+                raise invalid("skip applies only with all_pages")
+            plan.skip = integer({"minimum": 0, "maximum": MAX_ITEMS}, given["skip"], "skip")
     _body(entry, given, plan)
     return plan
 
@@ -194,7 +204,7 @@ def _body(entry: Mapping[str, Any], given: Mapping[str, Any], plan: Plan) -> Non
         if extra:
             raise invalid(
                 f"body has fields the {shape['schema']} resource does not have: "
-                + ", ".join(extra[:10])
+                + ", ".join(extra[: errors.LISTED_NAMES])
             )
         plan.body = dumps_json(value).encode("utf-8")
         plan.content_type = "application/json"
@@ -261,19 +271,23 @@ def read_result(
     result: dict[str, Any] = {"status": answer.status}
     warnings: list[str] = []
     if plan.as_file:
-        handle = None
-        if not answer.empty:
-            # A caption track is text: the token is removed like from any answer.
-            content = context.transport.scrub_bytes(answer.raw)
-            handle = files.save(
-                context, content, content_type=entry["file"]["content_type"], what="The file"
+        if not answer.raw:
+            # A download step promises a file; an empty answer is not one.
+            raise errors.no_effect(
+                errors.INVALID_RESPONSE,
+                f"YouTube answered {plan.shown} (HTTP {answer.status}) without a file",
+                failure_class="provider",
+                retryable=False,
             )
-        else:
-            warnings.append(f"YouTube answered {plan.shown} (HTTP {answer.status}) without a file")
+        # A caption track is text: the token is removed like from any answer.
+        content = context.transport.scrub_bytes(answer.raw)
+        handle = files.save(
+            context, content, content_type=entry["file"]["content_type"], what="The file"
+        )
         result.update(
             file=handle,
             content_type=answer.content_type or None,
-            size_bytes=len(answer.raw) if handle else None,
+            size_bytes=len(answer.raw),
         )
     else:
         data = _read_json(context, answer, plan.shown)
@@ -315,18 +329,20 @@ def run(context: Context, operation_id: str) -> dict[str, Any]:
         return result
     if plan.file_handle is not None:
         media = entry["body"]["upload"]
-        content = files.read(context, plan.file_handle, max_bytes=media["max_bytes"])
-        answer = upload.resumable(
-            context,
-            method=plan.method,
-            upload_path=media["path"],
-            api=plan.api,
-            shown=plan.shown,
-            query=plan.query,
-            metadata=plan.body,
-            content=content,
-            content_type=plan.file_type or "application/octet-stream",
-        )
+        content, total = files.spool(context, plan.file_handle, max_bytes=media["max_bytes"])
+        with content:
+            answer = upload.resumable(
+                context,
+                method=plan.method,
+                upload_path=media["path"],
+                api=plan.api,
+                shown=plan.shown,
+                query=plan.query,
+                metadata=plan.body,
+                content=content,
+                total=total,
+                content_type=plan.file_type or "application/octet-stream",
+            )
     else:
         answer = context.transport.write(to_call(entry, plan))
     return write_result(context, entry, answer, plan)

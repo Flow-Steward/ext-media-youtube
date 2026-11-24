@@ -14,3 +14,6 @@ First release, built on the Discovery document of the YouTube Data API v3 (revis
 - An answer cut off before its end (fewer bytes than Content-Length, or a chunked answer that stops early) is never taken for a whole one: a read fails with `invalid_response`, a change YouTube confirmed returns without data and with a warning, a creation says it was made but its id is not known, and a caption file is not saved. An empty answer where JSON is documented is `invalid_response`.
 - Each step offers only the connection types whose Google scopes allow its methods: the channel members and membership levels steps need the YouTube channel with memberships connection.
 - Posts (`posts.*`) are not included: they are not in the Discovery document and Google opens them only to approved launch partners; see the Coverage page.
+- A video, thumbnail or caption file is streamed from Flow Steward storage to a temporary file and uploaded part by part: about one 8 MiB part is in memory, not the whole file.
+- A caption download answered with an empty body fails with `invalid_response` instead of returning no file.
+- A list never returns more records than asked for: when YouTube answers more, the rest of that page is left for the next run, which starts from `next_page_token` and `skip` (`next_skip`).

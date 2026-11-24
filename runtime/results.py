@@ -113,9 +113,9 @@ def fit_write_result(result: dict[str, Any]) -> dict[str, Any]:
     for key in KEPT_WHOLE:
         if isinstance(result.get(key), Mapping):
             kept[key] = dict(result[key])
-    kept["warnings"] = [errors.safe_text(w, 300) for w in warnings[:MAX_KEPT_WARNINGS]] + [
-        "The result is cut to its identifiers: it is too large for the step output"
-    ]
+    kept["warnings"] = [
+        errors.safe_text(w, errors.TEXT_LIMIT) for w in warnings[:MAX_KEPT_WARNINGS]
+    ] + ["The result is cut to its identifiers: it is too large for the step output"]
     return kept
 
 

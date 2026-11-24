@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import io
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from decimal import Decimal
 from email.message import Message
 from pathlib import Path
@@ -128,8 +128,13 @@ class Artifacts:
         self.files = dict(files or {})
         self.saved: list[dict[str, Any]] = []
 
-    def reader(self, payload: Any, *, artifact_id: str, timeout_seconds: float) -> bytes:
-        return self.files[artifact_id]
+    def reader(
+        self, payload: Any, *, artifact_id: str, chunk_size: int, timeout_seconds: float
+    ) -> Iterator[bytes]:
+        """Like the SDK's ``stream_artifact_bytes``: the file in chunks of ``chunk_size``."""
+        data = self.files[artifact_id]
+        for start in range(0, len(data), chunk_size):
+            yield data[start : start + chunk_size]
 
     def writer(self, payload: Any, chunks: list[bytes], **kwargs: Any) -> dict[str, Any]:
         data = b"".join(chunks)

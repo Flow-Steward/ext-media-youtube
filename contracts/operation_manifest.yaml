@@ -123,6 +123,14 @@ operations:
       - string
       - 'null'
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: &id003
+      - integer
+      - 'null'
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: warnings
     value_type: array
     schema:
@@ -134,6 +142,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.warnings
   error_codes: *id002
 - operation_id: list_channel_videos
@@ -179,6 +188,16 @@ operations:
       description: 'Start from this page: next_page_token of an earlier run that stopped early.'
       type: string
       maxLength: 1000
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      title: Skip
+      type: integer
+      minimum: 0
+      maximum: 100000
+      description: 'With page_token: how many records of that page the earlier run already returned (its
+        next_skip).'
   - name: output
     value_type: text
     required: false
@@ -187,7 +206,7 @@ operations:
       description: 'step (default): the records in the step output. file: a JSON workflow file, for long
         lists.'
       type: string
-      enum: &id011
+      enum: &id012
       - step
       - file
   outputs:
@@ -228,6 +247,12 @@ operations:
       - string
       - 'null'
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: file
     value_type: artifact_handle
     schema:
@@ -248,6 +273,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.file
   - result.warnings
   error_codes: *id002
@@ -400,7 +426,7 @@ operations:
     schema:
       title: Tags
       type: array
-      items: &id003
+      items: &id004
         type: string
         maxLength: 500
       maxItems: 500
@@ -428,7 +454,7 @@ operations:
       title: Privacy
       description: private (default), unlisted or public.
       type: string
-      enum: &id004
+      enum: &id005
       - private
       - unlisted
       - public
@@ -493,7 +519,7 @@ operations:
   - name: data
     value_type: object
     schema:
-      type: &id005
+      type: &id006
       - object
       - 'null'
       additionalProperties: true
@@ -501,10 +527,10 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: &id006
+      type: &id007
       - string
       - 'null'
-      enum: &id007
+      enum: &id008
       - completed
       - accepted
       - null
@@ -514,7 +540,7 @@ operations:
   - name: applied
     value_type: boolean
     schema:
-      type: &id008
+      type: &id009
       - boolean
       - 'null'
       description: True with processing completed. False with processing accepted (read the outcome with
@@ -522,7 +548,7 @@ operations:
   - name: check
     value_type: object
     schema:
-      type: &id009
+      type: &id010
       - object
       - 'null'
       additionalProperties: true
@@ -552,7 +578,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: &id010
+  error_codes: &id011
   - invalid_payload
   - invalid_host_envelope
   - invalid_connection
@@ -716,7 +742,7 @@ operations:
     schema:
       title: Tags
       type: array
-      items: *id003
+      items: *id004
       maxItems: 500
       description: Keyword tags (they replace the current ones).
   - name: category_id
@@ -742,7 +768,7 @@ operations:
       title: Privacy
       description: private, unlisted or public.
       type: string
-      enum: *id004
+      enum: *id005
   - name: publish_at
     value_type: text
     required: false
@@ -790,27 +816,27 @@ operations:
   - name: data
     value_type: object
     schema:
-      type: *id005
+      type: *id006
       additionalProperties: true
       description: The resource YouTube returned.
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: warnings
@@ -837,7 +863,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: set_video_thumbnail
   display_name: Set video thumbnail
   description: 'Uploads a JPEG or PNG from a workflow file as a video''s custom thumbnail. Quota cost:
@@ -890,27 +916,27 @@ operations:
   - name: data
     value_type: object
     schema:
-      type: *id005
+      type: *id006
       additionalProperties: true
       description: The resource YouTube returned.
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: warnings
@@ -936,7 +962,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: list_video_comments
   display_name: Get all video comments
   description: 'Reads every top-level comment of a video, 100 per page, optionally with the replies YouTube
@@ -1015,6 +1041,16 @@ operations:
       description: 'Start from this page: next_page_token of an earlier run that stopped early.'
       type: string
       maxLength: 1000
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      title: Skip
+      type: integer
+      minimum: 0
+      maximum: 100000
+      description: 'With page_token: how many records of that page the earlier run already returned (its
+        next_skip).'
   - name: output
     value_type: text
     required: false
@@ -1023,7 +1059,7 @@ operations:
       description: 'step (default): the records in the step output. file: a JSON workflow file, for long
         lists.'
       type: string
-      enum: *id011
+      enum: *id012
   outputs:
   - name: comments
     value_type: array
@@ -1050,6 +1086,12 @@ operations:
       - string
       - 'null'
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: file
     value_type: artifact_handle
     schema:
@@ -1068,6 +1110,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.file
   - result.warnings
   error_codes: *id002
@@ -1114,27 +1157,27 @@ operations:
   - name: data
     value_type: object
     schema:
-      type: *id005
+      type: *id006
       additionalProperties: true
       description: The resource YouTube returned.
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: warnings
@@ -1160,7 +1203,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: list_my_playlists
   display_name: Get all my playlists
   description: 'Reads every playlist of the connected channel with its snippet, item count and privacy,
@@ -1194,6 +1237,16 @@ operations:
       description: 'Start from this page: next_page_token of an earlier run that stopped early.'
       type: string
       maxLength: 1000
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      title: Skip
+      type: integer
+      minimum: 0
+      maximum: 100000
+      description: 'With page_token: how many records of that page the earlier run already returned (its
+        next_skip).'
   outputs:
   - name: playlists
     value_type: array
@@ -1220,6 +1273,12 @@ operations:
       - string
       - 'null'
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: warnings
     value_type: array
     schema:
@@ -1231,6 +1290,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.warnings
   error_codes: *id002
 - operation_id: create_playlist
@@ -1272,7 +1332,7 @@ operations:
       title: Privacy
       description: private (default), unlisted or public.
       type: string
-      enum: *id004
+      enum: *id005
   - name: default_language
     value_type: text
     required: false
@@ -1287,7 +1347,7 @@ operations:
     schema:
       title: Tags
       type: array
-      items: *id003
+      items: *id004
       maxItems: 500
       description: Keyword tags (they replace the current ones).
   outputs:
@@ -1301,27 +1361,27 @@ operations:
   - name: data
     value_type: object
     schema:
-      type: *id005
+      type: *id006
       additionalProperties: true
       description: The resource YouTube returned.
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: warnings
@@ -1347,7 +1407,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: add_video_to_playlist
   display_name: Add video to playlist
   description: 'Adds a video to a playlist, at the end or at a position (0 is the first). Returns the
@@ -1400,27 +1460,27 @@ operations:
   - name: data
     value_type: object
     schema:
-      type: *id005
+      type: *id006
       additionalProperties: true
       description: The resource YouTube returned.
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: warnings
@@ -1446,7 +1506,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_channels
   display_name: Get channels
   description: 'Reads channels by ID, handle or username, or the channels of the connected account (mine).
@@ -1594,7 +1654,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -1619,7 +1689,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: &id012
+      items: &id013
         type: object
         additionalProperties: true
       description: The records read.
@@ -1636,10 +1706,16 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: &id013
+      type: &id014
       - string
       - 'null'
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -1660,6 +1736,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -1740,21 +1817,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -1788,7 +1865,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_channel_sections
   display_name: Get channel sections
   description: 'Reads the sections of a channel. Calls youtube.channelSections.list (GET /youtube/v3/channelSections)
@@ -1991,21 +2068,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -2039,7 +2116,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_channel_section
   display_name: Update channel section
   description: 'Changes a section of the connected channel. Calls youtube.channelSections.update (PUT
@@ -2114,21 +2191,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -2162,7 +2239,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_channel_section
   display_name: Delete channel section
   description: 'Removes a channel section. Calls youtube.channelSections.delete (DELETE /youtube/v3/channelSections)
@@ -2223,21 +2300,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -2271,7 +2348,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: upload_channel_banner
   display_name: Upload channel banner
   description: 'Uploads a banner image from a workflow file; set the URL it returns as the channel''s
@@ -2370,21 +2447,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -2418,7 +2495,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: set_channel_watermark
   display_name: Set channel watermark
   description: 'Uploads a watermark image from a workflow file and sets it for a channel. YouTube: Allows
@@ -2506,21 +2583,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -2554,7 +2631,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: remove_channel_watermark
   display_name: Remove channel watermark
   description: 'Removes a channel''s watermark. YouTube: Allows removal of channel watermark. Calls youtube.watermarks.unset
@@ -2615,21 +2692,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -2663,7 +2740,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_channel_activities
   display_name: Get channel activities
   description: 'Reads the activities of a channel or of the connected account. Calls youtube.activities.list
@@ -2778,7 +2855,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -2803,7 +2890,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -2818,8 +2905,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -2840,6 +2933,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -2935,7 +3029,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -2960,7 +3064,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -2975,8 +3079,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -2997,6 +3107,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -3229,21 +3340,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -3277,7 +3388,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_third_party_link
   display_name: Update third-party link
   description: Changes a link between a channel and a store or affiliate program. Calls youtube.thirdPartyLinks.update
@@ -3347,21 +3458,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -3395,7 +3506,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_third_party_link
   display_name: Delete third-party link
   description: Removes a link between a channel and a store or affiliate program. Calls youtube.thirdPartyLinks.delete
@@ -3475,21 +3586,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -3523,7 +3634,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_my_video_ratings
   display_name: Get my video ratings
   description: 'Reads the rating (like, dislike or none) the connected account gave to videos. YouTube:
@@ -3868,7 +3979,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -3893,7 +4014,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -3908,8 +4029,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -3930,6 +4057,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -3994,21 +4122,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -4042,7 +4170,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: upload_video_file
   display_name: Upload video file
   description: 'Uploads a video from a workflow file with its metadata in body, by YouTube''s resumable
@@ -4173,21 +4301,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -4221,7 +4349,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: rate_video
   display_name: Rate video
   description: 'Likes or dislikes a video, or removes the rating. YouTube: Adds a like or dislike rating
@@ -4283,21 +4411,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -4331,7 +4459,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_video
   display_name: Update video
   description: 'Changes a video''s metadata; the parts sent replace the current ones, so fields left out
@@ -4410,21 +4538,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -4458,7 +4586,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_video
   display_name: Delete video
   description: 'Deletes a video. Calls youtube.videos.delete (DELETE /youtube/v3/videos) of the YouTube
@@ -4518,21 +4646,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -4566,7 +4694,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_video_trainability
   display_name: Get video trainability
   description: 'Reads whether third parties may use a video for training. YouTube: Returns the trainability
@@ -4710,21 +4838,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -4758,7 +4886,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: search_youtube
   display_name: Search YouTube
   description: 'Searches videos, channels and playlists by keyword, location or channel. YouTube: Retrieves
@@ -5117,7 +5245,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -5142,7 +5280,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -5157,8 +5295,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -5179,6 +5323,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -5411,21 +5556,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -5459,7 +5604,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_playlists
   display_name: Get playlists
   description: 'Reads playlists by ID, of a channel, or of the connected account. Calls youtube.playlists.list
@@ -5586,7 +5731,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -5611,7 +5766,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -5626,8 +5781,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -5648,6 +5809,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -5735,21 +5897,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -5783,7 +5945,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_playlist
   display_name: Update playlist
   description: 'Changes a playlist''s title, description, privacy or localizations. Calls youtube.playlists.update
@@ -5860,21 +6022,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -5908,7 +6070,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_playlist
   display_name: Delete playlist
   description: 'Deletes a playlist. Calls youtube.playlists.delete (DELETE /youtube/v3/playlists) of the
@@ -5968,21 +6130,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -6016,7 +6178,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_playlist_items
   display_name: Get playlist items
   description: 'Reads the items of a playlist, or items by ID. Calls youtube.playlistItems.list (GET /youtube/v3/playlistItems)
@@ -6124,7 +6286,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -6149,7 +6321,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -6164,8 +6336,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -6186,6 +6364,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -6262,21 +6441,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -6310,7 +6489,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_playlist_item
   display_name: Update playlist item
   description: 'Changes a playlist item, for example its position. Calls youtube.playlistItems.update
@@ -6387,21 +6566,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -6435,7 +6614,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_playlist_item
   display_name: Delete playlist item
   description: 'Removes an item from a playlist. Calls youtube.playlistItems.delete (DELETE /youtube/v3/playlistItems)
@@ -6496,21 +6675,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -6544,7 +6723,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_playlist_images
   display_name: Get playlist images
   description: 'Reads the cover images of a playlist. Calls youtube.playlistImages.list (GET /youtube/v3/playlistImages)
@@ -6643,7 +6822,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -6668,7 +6857,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -6683,8 +6872,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -6705,6 +6900,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -6809,21 +7005,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -6857,7 +7053,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_playlist_image
   display_name: Update playlist image
   description: 'Changes a playlist cover image, optionally with a new image file. Calls youtube.playlistImages.update
@@ -6947,21 +7143,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -6995,7 +7191,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_playlist_image
   display_name: Delete playlist image
   description: 'Removes a playlist cover image. Calls youtube.playlistImages.delete (DELETE /youtube/v3/playlistImages)
@@ -7056,21 +7252,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -7104,7 +7300,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_comment_threads
   display_name: Get comment threads
   description: 'Reads top-level comments with their first replies, of a video or a channel, or by ID.
@@ -7254,7 +7450,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -7279,7 +7485,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -7294,8 +7500,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -7316,6 +7528,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -7379,21 +7592,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -7427,7 +7640,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_comments
   display_name: Get comments
   description: 'Reads comments by ID, or the replies to a comment. Calls youtube.comments.list (GET /youtube/v3/comments)
@@ -7525,7 +7738,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -7550,7 +7773,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -7565,8 +7788,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -7587,6 +7816,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -7650,21 +7880,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -7698,7 +7928,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: mark_comments_as_spam
   display_name: Mark comments as spam
   description: 'Flags comments as spam. YouTube: Expresses the caller''s opinion that one or more comments
@@ -7750,21 +7980,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -7798,7 +8028,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: set_comment_moderation_status
   display_name: Set comment moderation status
   description: 'Publishes, holds for review or rejects comments, optionally banning the author. YouTube:
@@ -7875,21 +8105,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -7923,7 +8153,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_comment
   display_name: Update comment
   description: 'Changes the text of a comment. Calls youtube.comments.update (PUT /youtube/v3/comments)
@@ -7985,21 +8215,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -8033,7 +8263,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_comment
   display_name: Delete comment
   description: 'Deletes a comment. Calls youtube.comments.delete (DELETE /youtube/v3/comments) of the
@@ -8081,21 +8311,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -8129,7 +8359,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_caption_tracks
   display_name: Get caption tracks
   description: 'Reads the caption tracks of a video. Calls youtube.captions.list (GET /youtube/v3/captions)
@@ -8452,21 +8682,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -8500,7 +8730,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_caption_track
   display_name: Update caption track
   description: 'Changes a caption track''s draft status, optionally with a new caption file. Calls youtube.captions.update
@@ -8607,21 +8837,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -8655,7 +8885,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_caption_track
   display_name: Delete caption track
   description: 'Deletes a caption track. Calls youtube.captions.delete (DELETE /youtube/v3/captions) of
@@ -8723,21 +8953,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -8771,7 +9001,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_live_broadcasts
   display_name: Get live broadcasts
   description: 'Reads live broadcasts by ID, status or of the connected account. YouTube: Retrieve the
@@ -8907,7 +9137,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -8932,7 +9172,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -8947,8 +9187,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -8969,6 +9215,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -9070,21 +9317,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -9118,7 +9365,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: create_live_broadcast
   display_name: Create live broadcast
   description: 'Creates a live broadcast. YouTube: Inserts a new stream for the authenticated user. Calls
@@ -9206,21 +9453,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -9254,7 +9501,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: insert_broadcast_cuepoint
   display_name: Insert broadcast cuepoint
   description: 'Inserts a cuepoint (an ad break) into a live broadcast. YouTube: Insert cuepoints in a
@@ -9349,21 +9596,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -9397,7 +9644,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: bind_live_broadcast_to_stream
   display_name: Bind live broadcast to stream
   description: 'Binds a live broadcast to a video stream, or removes the binding. YouTube: Bind a broadcast
@@ -9491,21 +9738,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -9539,7 +9786,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_live_broadcast
   display_name: Update live broadcast
   description: 'Changes a live broadcast. YouTube: Updates an existing broadcast for the authenticated
@@ -9628,21 +9875,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -9676,7 +9923,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_live_broadcast
   display_name: Delete live broadcast
   description: 'Deletes a live broadcast. YouTube: Delete a given broadcast. Calls youtube.liveBroadcasts.delete
@@ -9749,21 +9996,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -9797,7 +10044,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_live_streams
   display_name: Get live streams
   description: 'Reads video streams by ID or of the connected account. YouTube: Retrieve the list of streams
@@ -9906,7 +10153,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -9931,7 +10188,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -9946,8 +10203,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -9968,6 +10231,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -10058,21 +10322,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -10106,7 +10370,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: update_live_stream
   display_name: Update live stream
   description: 'Changes a video stream. YouTube: Updates an existing stream for the authenticated user.
@@ -10195,21 +10459,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -10243,7 +10507,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_live_stream
   display_name: Delete live stream
   description: 'Deletes a video stream. YouTube: Deletes an existing stream for the authenticated user.
@@ -10316,21 +10580,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -10364,7 +10628,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_live_chat_messages
   display_name: Get live chat messages
   description: 'Reads the messages of a live chat. YouTube: Retrieves a list of resources, possibly filtered.
@@ -10538,21 +10802,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -10586,7 +10850,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: send_live_chat_message
   display_name: Send live chat message
   description: 'Posts a message to a live chat. YouTube: Inserts a new resource into this collection.
@@ -10649,21 +10913,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -10697,7 +10961,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_live_chat_message
   display_name: Delete live chat message
   description: 'Deletes a live chat message. YouTube: Deletes a chat message. A call to this method has
@@ -10746,21 +11010,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -10794,7 +11058,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: ban_live_chat_user
   display_name: Ban live chat user
   description: 'Bans a user from a live chat, for a time or permanently. Calls youtube.liveChatBans.insert
@@ -10857,21 +11121,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -10905,7 +11169,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: remove_live_chat_ban
   display_name: Remove live chat ban
   description: 'Lifts a live chat ban. YouTube: Deletes a chat ban. Calls youtube.liveChatBans.delete
@@ -10954,21 +11218,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -11002,7 +11266,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_live_chat_moderators
   display_name: Get live chat moderators
   description: 'Reads the moderators of a live chat. Calls youtube.liveChatModerators.list (GET /youtube/v3/liveChat/moderators)
@@ -11075,7 +11339,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -11100,7 +11374,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -11115,8 +11389,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -11137,6 +11417,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -11202,21 +11483,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -11250,7 +11531,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: remove_live_chat_moderator
   display_name: Remove live chat moderator
   description: 'Removes a live chat moderator. YouTube: Deletes a chat moderator. Calls youtube.liveChatModerators.delete
@@ -11299,21 +11580,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -11347,7 +11628,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_super_chat_events
   display_name: Get Super Chat events
   description: 'Reads the Super Chat and Super Sticker events of the connected channel. Calls youtube.superChatEvents.list
@@ -11421,7 +11702,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -11446,7 +11737,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -11461,8 +11752,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -11483,6 +11780,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -11640,7 +11938,17 @@ operations:
       minimum: 1
       maximum: 100000
       title: Most records
-      description: 'With all_pages: the most records to read (default 10000), on whole pages.'
+      description: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      minimum: 0
+      maximum: 100000
+      title: Skip
+      description: 'With all_pages and page_token: how many records of that page an earlier run already
+        returned (its next_skip).'
   outputs:
   - name: status
     value_type: integer
@@ -11665,7 +11973,7 @@ operations:
     value_type: array
     schema:
       type: array
-      items: *id012
+      items: *id013
       description: The records read.
   - name: count
     value_type: integer
@@ -11680,8 +11988,14 @@ operations:
   - name: next_page_token
     value_type: text
     schema:
-      type: *id013
+      type: *id014
       description: 'When complete is false: the page_token to start the next run from.'
+  - name: next_skip
+    value_type: integer
+    schema:
+      type: *id003
+      description: 'When complete is false: the skip to start the next run with, together with next_page_token
+        (records of that page already returned).'
   - name: etag
     value_type: text
     schema:
@@ -11702,6 +12016,7 @@ operations:
   - result.count
   - result.complete
   - result.next_page_token
+  - result.next_skip
   - result.etag
   - result.warnings
   error_codes: *id002
@@ -11766,21 +12081,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -11814,7 +12129,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: delete_subscription
   display_name: Delete subscription
   description: 'Unsubscribes from a channel. Calls youtube.subscriptions.delete (DELETE /youtube/v3/subscriptions)
@@ -11863,21 +12178,21 @@ operations:
   - name: processing
     value_type: text
     schema:
-      type: *id006
-      enum: *id007
+      type: *id007
+      enum: *id008
       description: 'completed: YouTube answered that the change is made. accepted: YouTube took the uploaded
         video and processes it afterwards; check the outcome with the step named in check. None in a test
         run and when nothing was sent.'
   - name: applied
     value_type: boolean
     schema:
-      type: *id008
+      type: *id009
       description: True with processing completed. False with processing accepted (read the outcome with
         the check step), in a test run and when nothing was sent.
   - name: check
     value_type: object
     schema:
-      type: *id009
+      type: *id010
       additionalProperties: true
       description: 'With processing accepted: operation_id, the step that reads the outcome. None otherwise.'
   - name: etag
@@ -11911,7 +12226,7 @@ operations:
   - result.warnings
   - result.external_effect_status
   - result.definitely_no_external_effect
-  error_codes: *id010
+  error_codes: *id011
 - operation_id: get_interface_languages
   display_name: Get interface languages
   description: 'Reads the application languages YouTube supports. Calls youtube.i18nLanguages.list (GET

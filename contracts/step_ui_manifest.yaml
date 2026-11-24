@@ -25,6 +25,11 @@ forms:
     widget_type: text
     required: false
     help_text: 'Start from this page: next_page_token of an earlier run that stopped early.'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With page_token: how many records of that page the earlier run already returned (its next_skip).'
   - name: output
     label: Output
     widget_type: select
@@ -302,6 +307,11 @@ forms:
     widget_type: text
     required: false
     help_text: 'Start from this page: next_page_token of an earlier run that stopped early.'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With page_token: how many records of that page the earlier run already returned (its next_skip).'
   - name: output
     label: Output
     widget_type: select
@@ -338,6 +348,11 @@ forms:
     widget_type: text
     required: false
     help_text: 'Start from this page: next_page_token of an earlier run that stopped early.'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With page_token: how many records of that page the earlier run already returned (its next_skip).'
 - operation_id: create_playlist
   title: Create playlist
   fields:
@@ -479,7 +494,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: update_channel
   title: Update channel
   fields:
@@ -789,7 +810,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: get_channel_members
   title: Get channel members
   fields:
@@ -846,7 +873,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: get_membership_levels
   title: Get membership levels
   fields:
@@ -1116,7 +1149,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: report_video_abuse
   title: Report video abuse
   fields:
@@ -1591,7 +1630,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: get_video_categories
   title: Get video categories
   fields:
@@ -1724,7 +1769,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: create_playlist_from_body
   title: Create playlist from body
   fields:
@@ -1863,7 +1914,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: create_playlist_item
   title: Create playlist item
   fields:
@@ -1989,7 +2046,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: upload_playlist_image
   title: Upload playlist image
   fields:
@@ -2185,7 +2248,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: create_comment_thread
   title: Create comment thread
   fields:
@@ -2261,7 +2330,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: create_comment_reply
   title: Create comment reply
   fields:
@@ -2615,7 +2690,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: change_live_broadcast_status
   title: Change live broadcast status
   fields:
@@ -2901,7 +2982,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: create_live_stream
   title: Create live stream
   fields:
@@ -3144,7 +3231,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: add_live_chat_moderator
   title: Add live chat moderator
   fields:
@@ -3209,7 +3302,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: get_subscriptions
   title: Get subscriptions
   fields:
@@ -3309,7 +3408,13 @@ forms:
     label: Most records
     widget_type: integer
     required: false
-    help_text: 'With all_pages: the most records to read (default 10000), on whole pages.'
+    help_text: 'With all_pages: the most records to read (default 10000).'
+  - name: skip
+    label: Skip
+    widget_type: integer
+    required: false
+    help_text: 'With all_pages and page_token: how many records of that page an earlier run already returned
+      (its next_skip).'
 - operation_id: create_subscription
   title: Create subscription
   fields:

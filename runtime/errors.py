@@ -60,9 +60,35 @@ SAFE_ERROR_CODES: frozenset[str] = frozenset(
 AMBIGUOUS_ERROR_CODES: frozenset[str] = frozenset({TIMEOUT_UNKNOWN})
 
 _MAX_MESSAGE = 1500
+#: Lengths at which a text taken from an input or an answer is cut before it reaches a
+#: result, a warning or an error (our decision: bounded, still readable).
+SHORT_TEXT = 60  # a Content-Type
+REASON_TEXT = 80  # one error reason
+ID_TEXT = 100  # an id, a location in a request
+NAME_TEXT = 200  # a title, a handle
+TEXT_LIMIT = 300  # a warning; the default
+MESSAGE_TEXT = 400  # the vendor's error message
+DETAIL_TEXT = 900  # an error's joined details
+HEADER_TEXT = 2000  # a kept response header
+#: How many unknown input names a refusal lists (our decision).
+LISTED_NAMES = 10
 
 
-def safe_text(value: object, limit: int = 300) -> str:
+MIB = 1024 * 1024
+GIB = 1024 * MIB
+
+
+def size_text(count: int) -> str:
+    """A byte count as messages show it (``20 MiB``), from the same constant the check
+    uses, so the number in a message and the limit never differ."""
+    if count % GIB == 0:
+        return f"{count // GIB} GiB"
+    if count % MIB == 0:
+        return f"{count // MIB} MiB"
+    return f"{count} bytes"
+
+
+def safe_text(value: object, limit: int = TEXT_LIMIT) -> str:
     """Printable, single-line, bounded text from an upstream value."""
     text = value if isinstance(value, str) else ("" if value is None else str(value))
     text = "".join(ch if ch.isprintable() else " " for ch in text)

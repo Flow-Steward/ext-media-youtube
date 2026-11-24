@@ -16,6 +16,9 @@ from typing import Any
 from . import numbers
 from .errors import invalid
 
+#: Characters of a refused value shown back in the message (our decision).
+SHOWN_VALUE_LENGTH = 40
+
 
 def text(value: Any, what: str, *, max_length: int, min_length: int = 0) -> str:
     if isinstance(value, bool) or not isinstance(value, (str, int, Decimal)):
@@ -58,7 +61,7 @@ def date_time(value: str, what: str) -> str:
                 tzinfo=timezone(timedelta(hours=int(off_h or 0), minutes=int(off_m or 0)))
             ).astimezone(UTC)
     except (ValueError, OverflowError):
-        raise invalid(f"{what} is not a real date and time: {value[:40]}") from None
+        raise invalid(f"{what} is not a real date and time: {value[:SHOWN_VALUE_LENGTH]}") from None
     return value
 
 

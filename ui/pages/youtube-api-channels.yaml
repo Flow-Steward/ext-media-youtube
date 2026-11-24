@@ -14,7 +14,7 @@ components:
 
     Action id `get_channels` · reads only · YouTube: `GET /youtube/v3/channels`
 
-    Inputs: `on_behalf_of_content_owner`, `my_subscribers`, `id`, `managed_by_me`, `for_username`, `max_results`, `mine`, `hl`, `category_id`, `part` (required), `page_token`, `for_handle`, `all_pages`, `max_items`.
+    Inputs: `on_behalf_of_content_owner`, `my_subscribers`, `id`, `managed_by_me`, `for_username`, `max_results`, `mine`, `hl`, `category_id`, `part` (required), `page_token`, `for_handle`, `all_pages`, `max_items`, `skip`.
 
     ### Update channel
 
@@ -86,7 +86,7 @@ components:
 
     Action id `get_channel_activities` · reads only · YouTube: `GET /youtube/v3/activities`
 
-    Inputs: `published_before`, `part` (required), `mine`, `max_results`, `page_token`, `home`, `region_code`, `channel_id`, `published_after`, `all_pages`, `max_items`.
+    Inputs: `published_before`, `part` (required), `mine`, `max_results`, `page_token`, `home`, `region_code`, `channel_id`, `published_after`, `all_pages`, `max_items`, `skip`.
 
     ### Get channel members
 
@@ -94,7 +94,7 @@ components:
 
     Action id `get_channel_members` · reads only · YouTube: `GET /youtube/v3/members`
 
-    Inputs: `max_results`, `filter_by_member_channel_id`, `mode`, `part` (required), `page_token`, `has_access_to_level`, `all_pages`, `max_items`.
+    Inputs: `max_results`, `filter_by_member_channel_id`, `mode`, `part` (required), `page_token`, `has_access_to_level`, `all_pages`, `max_items`, `skip`.
 
     ### Get membership levels
 

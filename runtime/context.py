@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
 from .connection import Connection
 from .transport import YouTubeTransport
 
 TransportFactory = Callable[[Connection], YouTubeTransport]
-ArtifactReader = Callable[..., bytes]
+#: The SDK's ``stream_artifact_bytes``: a workflow file as an iterator of byte chunks.
+ArtifactReader = Callable[..., Iterable[bytes]]
 ArtifactWriter = Callable[..., Mapping[str, Any]]
 
 

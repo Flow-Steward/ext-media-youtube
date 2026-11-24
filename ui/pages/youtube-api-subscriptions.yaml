@@ -14,7 +14,7 @@ components:
 
     Action id `get_subscriptions` · reads only · YouTube: `GET /youtube/v3/subscriptions`
 
-    Inputs: `my_subscribers`, `on_behalf_of_content_owner`, `max_results`, `my_recent_subscribers`, `id`, `page_token`, `channel_id`, `mine`, `for_channel_id`, `part` (required), `on_behalf_of_content_owner_channel`, `order`, `all_pages`, `max_items`.
+    Inputs: `my_subscribers`, `on_behalf_of_content_owner`, `max_results`, `my_recent_subscribers`, `id`, `page_token`, `channel_id`, `mine`, `for_channel_id`, `part` (required), `on_behalf_of_content_owner_channel`, `order`, `all_pages`, `max_items`, `skip`.
 
     ### Create subscription
 

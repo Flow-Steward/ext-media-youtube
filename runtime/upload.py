@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence
+from typing import BinaryIO
 from urllib.parse import parse_qsl, urlsplit
 
 from . import errors
@@ -35,9 +36,12 @@ from .errors import ExtensionError
 from .transport import Answer, Call, DeadlineReached
 
 #: Size of every part but the last: 8 MiB, a multiple of 256 KiB.
-CHUNK_BYTES = 8 * 1024 * 1024
+CHUNK_BYTES = 8 * errors.MIB
 #: Parts that may come back without progress before the upload is given up.
 MAX_STALLS = 3
+#: An upload_id at least this long is also removed from texts on its own; a shorter one
+#: would match unrelated text (our decision).
+MIN_SECRET_UPLOAD_ID = 16
 _RANGE = re.compile(r"^bytes=0-(\d{1,15})$")
 
 
@@ -76,12 +80,13 @@ def resumable(
     shown: str,
     query: Sequence[tuple[str, str]],
     metadata: bytes | None,
-    content: bytes,
+    content: BinaryIO,
+    total: int,
     content_type: str,
 ) -> Answer:
-    """Upload ``content``; YouTube's answer to the last part (the created resource)."""
+    """Upload ``total`` bytes of ``content`` (a seekable file, read one part at a time);
+    YouTube's answer to the last part (the created resource)."""
     transport = context.transport
-    total = len(content)
     start = Call(
         method=method,
         path=upload_path,
@@ -110,7 +115,7 @@ def resumable(
         )
     transport.add_secret(session)
     for name, value in parse_qsl(urlsplit(session).query):
-        if name == "upload_id" and len(value) >= 16:
+        if name == "upload_id" and len(value) >= MIN_SECRET_UPLOAD_ID:
             transport.add_secret(value)
     offset = 0
     stalls = 0
@@ -123,7 +128,7 @@ def resumable(
             shown=shown,
             api=api,
             headers={"Content-Range": f"bytes {offset}-{end - 1}/{total}"},
-            body=content[offset:end],
+            body=_part(content, offset, end),
             content_type=content_type,
             success=("200", "201", "308"),
             session_url=session,
@@ -156,6 +161,8 @@ def resumable(
                     retryable=False,
                     http_status=exc.http_status,
                 ) from None
+        # The part sent is let go before the next one is read: one part in memory.
+        del part
         if answer.status != 308:
             transport.committed = True
             return answer
@@ -169,6 +176,18 @@ def resumable(
         else:
             stalls = 0
         offset = progress
+
+
+def _part(content: BinaryIO, offset: int, end: int) -> bytes:
+    """Bytes ``offset`` to ``end`` of the file; only this part is held in memory."""
+    content.seek(offset)
+    data = content.read(end - offset)
+    if len(data) != end - offset:
+        raise errors.no_effect(
+            errors.ARTIFACT_INPUT_UNAVAILABLE,
+            "The workflow file changed while it was uploaded; nothing was created",
+        )
+    return data
 
 
 def _bad_progress(progress: int, total: int, last: bool) -> ExtensionError:

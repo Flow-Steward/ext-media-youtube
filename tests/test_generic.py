@@ -187,13 +187,15 @@ def test_max_items_needs_all_pages() -> None:
     assert result["error_code"] == "invalid_payload"
 
 
-def test_all_pages_stops_at_max_items_on_whole_pages() -> None:
+def test_all_pages_never_returns_more_than_max_items() -> None:
     fake = FakeYouTube(page(["a", "b"], "T2"), page(["c", "d"], "T3"))
     given = {"part": ["snippet"], "mine": True, "all_pages": True, "max_items": 3, "max_results": 2}
     out = run("get_playlists", given, fake)["result"]
-    # The second page is asked for the one record left; pages are returned whole.
+    # The second page is asked for the one record left; YouTube answering more is cut.
     assert dict(fake.calls[1].query)["maxResults"] == "1"
-    assert out["complete"] is False and out["next_page_token"] == "T3"
+    assert [i["id"] for i in out["items"]] == ["a", "b", "c"]
+    assert out["complete"] is False
+    assert out["next_page_token"] == "T2" and out["next_skip"] == 1
 
 
 def test_all_pages_starts_from_the_page_token_given() -> None:
@@ -304,3 +306,19 @@ def test_query_strings_are_url_encoded() -> None:
     fake = FakeYouTube(ok({"items": []}))
     run("search_youtube", {"part": ["snippet"], "q": "a&b=c"}, fake)
     assert ("q", "a&b=c") in parse_qsl(fake.calls[0].url.split("?", 1)[1])
+
+
+def test_an_empty_download_is_an_invalid_answer_not_a_missing_file() -> None:
+    artifacts = Artifacts()
+    fake = FakeYouTube(raw(200, b"", "text/vtt"))
+    result = run("download_caption_track", {"id": "c1"}, fake, artifacts=artifacts)
+    assert result["ok"] is False, result
+    assert result["error_code"] == "invalid_response"
+    assert result["definitely_no_external_effect"] is True
+    assert artifacts.saved == []
+
+
+def test_every_file_step_is_covered_by_the_empty_download_rule() -> None:
+    assert [k for k, v in generic.registry().items() if v["answer"] == "file"] == [
+        "download_caption_track"
+    ]

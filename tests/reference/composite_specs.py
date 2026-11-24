@@ -64,6 +64,14 @@ PROCESSING_OUTPUTS: list[dict[str, Any]] = [
     },
 ]
 
+NEXT_SKIP: dict[str, Any] = {
+    "name": "next_skip",
+    "type": ["integer", "null"],
+    "description": (
+        "When complete is false: the skip to start the next run with, together with "
+        "next_page_token (records of that page already returned)."
+    ),
+}
 #: The outputs of a list step.
 PAGE_OUTPUTS: list[dict[str, Any]] = [
     {
@@ -83,6 +91,7 @@ PAGE_OUTPUTS: list[dict[str, Any]] = [
         "type": ["string", "null"],
         "description": "When complete is false: the page_token to start the next run from.",
     },
+    NEXT_SKIP,
 ]
 
 EFFECT_OUTPUTS: list[dict[str, Any]] = [
@@ -115,6 +124,7 @@ def _list_outputs(key: str, what: str, *, to_file: bool) -> list[dict[str, Any]]
             "type": ["string", "null"],
             "description": "When complete is false: the page_token to start the next run from.",
         },
+        NEXT_SKIP,
     ]
     if to_file:
         rows.append(
@@ -134,6 +144,17 @@ PAGE_TOKEN = _text(
     "Start from this page: next_page_token of an earlier run that stopped early.",
     maxLength=1000,
 )
+SKIP: dict[str, Any] = {
+    "name": "skip",
+    "title": "Skip",
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100000,
+    "description": (
+        "With page_token: how many records of that page the earlier run already returned "
+        "(its next_skip)."
+    ),
+}
 OUTPUT = _text(
     "output",
     "Output",
@@ -286,6 +307,7 @@ COMPOSITES: list[dict[str, Any]] = [
                 "description": "The most videos to read (default 5000).",
             },
             PAGE_TOKEN,
+            SKIP,
             OUTPUT,
         ],
         "outputs": [
@@ -588,6 +610,7 @@ COMPOSITES: list[dict[str, Any]] = [
                 "description": "The most comment threads to read (default 10000).",
             },
             PAGE_TOKEN,
+            SKIP,
             OUTPUT,
         ],
         "outputs": _list_outputs("comments", "comment threads", to_file=True) + [WARNINGS],
@@ -642,6 +665,7 @@ COMPOSITES: list[dict[str, Any]] = [
                 "description": "The most playlists to read (default 5000).",
             },
             PAGE_TOKEN,
+            SKIP,
         ],
         "outputs": _list_outputs("playlists", "playlists", to_file=False) + [WARNINGS],
     },

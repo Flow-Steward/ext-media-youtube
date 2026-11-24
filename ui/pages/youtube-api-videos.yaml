@@ -30,7 +30,7 @@ components:
 
     Action id `get_videos` · reads only · YouTube: `GET /youtube/v3/videos`
 
-    Inputs: `video_category_id`, `locale`, `part` (required), `hl`, `max_results`, `region_code`, `on_behalf_of_content_owner`, `chart`, `max_height`, `my_rating`, `id`, `page_token`, `max_width`, `all_pages`, `max_items`.
+    Inputs: `video_category_id`, `locale`, `part` (required), `hl`, `max_results`, `region_code`, `on_behalf_of_content_owner`, `chart`, `max_height`, `my_rating`, `id`, `page_token`, `max_width`, `all_pages`, `max_items`, `skip`.
 
     ### Report video abuse
 
@@ -94,7 +94,7 @@ components:
 
     Action id `search_youtube` · reads only · YouTube: `GET /youtube/v3/search`
 
-    Inputs: `order`, `page_token`, `video_dimension`, `type`, `max_results`, `video_duration`, `video_syndicated`, `region_code`, `published_after`, `video_type`, `for_mine`, `for_content_owner`, `location`, `event_type`, `safe_search`, `video_category_id`, `channel_type`, `for_developer`, `part` (required), `video_embeddable`, `on_behalf_of_content_owner`, `channel_id`, `location_radius`, `video_license`, `video_caption`, `video_definition`, `published_before`, `video_paid_product_placement`, `q`, `relevance_language`, `topic_id`, `all_pages`, `max_items`.
+    Inputs: `order`, `page_token`, `video_dimension`, `type`, `max_results`, `video_duration`, `video_syndicated`, `region_code`, `published_after`, `video_type`, `for_mine`, `for_content_owner`, `location`, `event_type`, `safe_search`, `video_category_id`, `channel_type`, `for_developer`, `part` (required), `video_embeddable`, `on_behalf_of_content_owner`, `channel_id`, `location_radius`, `video_license`, `video_caption`, `video_definition`, `published_before`, `video_paid_product_placement`, `q`, `relevance_language`, `topic_id`, `all_pages`, `max_items`, `skip`.
 
     ### Get video categories
 

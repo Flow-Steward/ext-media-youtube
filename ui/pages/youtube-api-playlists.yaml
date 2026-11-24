@@ -14,7 +14,7 @@ components:
 
     Action id `get_playlists` · reads only · YouTube: `GET /youtube/v3/playlists`
 
-    Inputs: `page_token`, `part` (required), `on_behalf_of_content_owner_channel`, `on_behalf_of_content_owner`, `hl`, `mine`, `channel_id`, `id`, `max_results`, `all_pages`, `max_items`.
+    Inputs: `page_token`, `part` (required), `on_behalf_of_content_owner_channel`, `on_behalf_of_content_owner`, `hl`, `mine`, `channel_id`, `id`, `max_results`, `all_pages`, `max_items`, `skip`.
 
     ### Create playlist from body
 
@@ -46,7 +46,7 @@ components:
 
     Action id `get_playlist_items` · reads only · YouTube: `GET /youtube/v3/playlistItems`
 
-    Inputs: `max_results`, `video_id`, `playlist_id`, `id`, `page_token`, `part` (required), `on_behalf_of_content_owner`, `all_pages`, `max_items`.
+    Inputs: `max_results`, `video_id`, `playlist_id`, `id`, `page_token`, `part` (required), `on_behalf_of_content_owner`, `all_pages`, `max_items`, `skip`.
 
     ### Create playlist item
 
@@ -78,7 +78,7 @@ components:
 
     Action id `get_playlist_images` · reads only · YouTube: `GET /youtube/v3/playlistImages`
 
-    Inputs: `part`, `parent`, `page_token`, `on_behalf_of_content_owner_channel`, `max_results`, `on_behalf_of_content_owner`, `all_pages`, `max_items`.
+    Inputs: `part`, `parent`, `page_token`, `on_behalf_of_content_owner_channel`, `max_results`, `on_behalf_of_content_owner`, `all_pages`, `max_items`, `skip`.
 
     ### Upload playlist image
 

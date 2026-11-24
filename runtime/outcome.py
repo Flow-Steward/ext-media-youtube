@@ -43,6 +43,10 @@ OTHER = "other"
 CREATE = "create"
 
 _JSON_STARTS = (b"{", b"[")
+#: Characters of an answer that is not JSON returned as text (our decision).
+MAX_TEXT_ANSWER = 20_000
+#: A created resource's ID longer than this is not taken for one (our bound).
+MAX_RESOURCE_ID_LENGTH = 200
 
 
 def json_type(content_type: str) -> bool:
@@ -85,7 +89,9 @@ def write_outcome(
     kind = answer.content_type
     # T2: by the headers, whatever happened to the body.
     if promised and kind and not json_type(kind):
-        raise _not_json(shown, status, f"its Content-Type is {errors.safe_text(kind, 60)}")
+        raise _not_json(
+            shown, status, f"its Content-Type is {errors.safe_text(kind, errors.SHORT_TEXT)}"
+        )
     missing: str | None = answer.unread
     parsed = False
     if missing is None and not answer.empty:
@@ -100,7 +106,7 @@ def write_outcome(
         except ValueError:
             if promised:  # T3
                 raise _not_json(shown, status, "its body does not parse") from None
-            out["data"] = context.transport.text(answer, 20_000)
+            out["data"] = context.transport.text(answer, MAX_TEXT_ANSWER)
             out["warnings"].append(
                 f"YouTube confirmed {shown} (HTTP {status}) but its answer is not JSON; it is "
                 "returned as text"
@@ -152,7 +158,7 @@ def resource_id(value: Any) -> str | None:
     if not isinstance(value, Mapping):
         return None
     ident = value.get("id")
-    if isinstance(ident, str) and ident.strip() and len(ident) <= 200:
+    if isinstance(ident, str) and ident.strip() and len(ident) <= MAX_RESOURCE_ID_LENGTH:
         return ident.strip()
     return None
 

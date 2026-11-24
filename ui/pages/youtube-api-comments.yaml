@@ -14,7 +14,7 @@ components:
 
     Action id `get_comment_threads` · reads only · YouTube: `GET /youtube/v3/commentThreads`
 
-    Inputs: `all_threads_related_to_channel_id`, `video_id`, `channel_id`, `order`, `search_terms`, `id`, `max_results`, `part` (required), `moderation_status`, `text_format`, `page_token`, `all_pages`, `max_items`.
+    Inputs: `all_threads_related_to_channel_id`, `video_id`, `channel_id`, `order`, `search_terms`, `id`, `max_results`, `part` (required), `moderation_status`, `text_format`, `page_token`, `all_pages`, `max_items`, `skip`.
 
     ### Create comment thread
 
@@ -30,7 +30,7 @@ components:
 
     Action id `get_comments` · reads only · YouTube: `GET /youtube/v3/comments`
 
-    Inputs: `part` (required), `parent_id`, `page_token`, `max_results`, `id`, `text_format`, `all_pages`, `max_items`.
+    Inputs: `part` (required), `parent_id`, `page_token`, `max_results`, `id`, `text_format`, `all_pages`, `max_items`, `skip`.
 
     ### Create comment reply
 

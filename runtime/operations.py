@@ -7,7 +7,7 @@ import traceback
 from collections.abc import Mapping
 from typing import Any
 
-from flowsteward_extension_sdk import read_artifact_bytes, write_artifact_stream
+from flowsteward_extension_sdk import stream_artifact_bytes, write_artifact_stream
 
 from . import budget, catalog, composites, errors, generic
 from .connection import connection_from_payload
@@ -23,7 +23,7 @@ def handle_runtime(
     payload: Mapping[str, Any],
     *,
     transport_factory: TransportFactory = YouTubeTransport,
-    artifact_reader: ArtifactReader = read_artifact_bytes,
+    artifact_reader: ArtifactReader = stream_artifact_bytes,
     artifact_writer: ArtifactWriter = write_artifact_stream,
 ) -> dict[str, Any]:
     """Dispatch one invocation through the closed registry."""

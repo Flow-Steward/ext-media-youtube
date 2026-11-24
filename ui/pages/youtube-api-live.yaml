@@ -14,7 +14,7 @@ components:
 
     Action id `get_live_broadcasts` · reads only · YouTube: `GET /youtube/v3/liveBroadcasts`
 
-    Inputs: `broadcast_type`, `on_behalf_of_content_owner_channel`, `max_results`, `page_token`, `on_behalf_of_content_owner`, `part` (required), `mine`, `id`, `broadcast_status`, `all_pages`, `max_items`.
+    Inputs: `broadcast_type`, `on_behalf_of_content_owner_channel`, `max_results`, `page_token`, `on_behalf_of_content_owner`, `part` (required), `mine`, `id`, `broadcast_status`, `all_pages`, `max_items`, `skip`.
 
     ### Change live broadcast status
 
@@ -70,7 +70,7 @@ components:
 
     Action id `get_live_streams` · reads only · YouTube: `GET /youtube/v3/liveStreams`
 
-    Inputs: `page_token`, `on_behalf_of_content_owner`, `max_results`, `on_behalf_of_content_owner_channel`, `id`, `part` (required), `mine`, `all_pages`, `max_items`.
+    Inputs: `page_token`, `on_behalf_of_content_owner`, `max_results`, `on_behalf_of_content_owner_channel`, `id`, `part` (required), `mine`, `all_pages`, `max_items`, `skip`.
 
     ### Create live stream
 
@@ -150,7 +150,7 @@ components:
 
     Action id `get_live_chat_moderators` · reads only · YouTube: `GET /youtube/v3/liveChat/moderators`
 
-    Inputs: `max_results`, `part` (required), `page_token`, `live_chat_id` (required), `all_pages`, `max_items`.
+    Inputs: `max_results`, `part` (required), `page_token`, `live_chat_id` (required), `all_pages`, `max_items`, `skip`.
 
     ### Add live chat moderator
 
@@ -174,4 +174,4 @@ components:
 
     Action id `get_super_chat_events` · reads only · YouTube: `GET /youtube/v3/superChatEvents`
 
-    Inputs: `hl`, `part` (required), `page_token`, `max_results`, `all_pages`, `max_items`.
+    Inputs: `hl`, `part` (required), `page_token`, `max_results`, `all_pages`, `max_items`, `skip`.

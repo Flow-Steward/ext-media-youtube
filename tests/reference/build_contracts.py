@@ -160,7 +160,7 @@ SINGLE_PAGE = {
 }
 #: Inputs the generic steps reserve; no source parameter may take one of these names.
 RESERVED_INPUTS = frozenset(
-    {"connection_ref", "body", "file", "content_type", "all_pages", "max_items"}
+    {"connection_ref", "body", "file", "content_type", "all_pages", "max_items", "skip"}
 )
 
 
@@ -654,7 +654,24 @@ def step_inputs(entry: dict[str, Any]) -> list[dict[str, Any]]:
                     "minimum": 1,
                     "maximum": 100000,
                     "title": "Most records",
-                    "description": "With all_pages: the most records to read (default 10000), on whole pages.",
+                    "description": "With all_pages: the most records to read (default 10000).",
+                },
+                "widget": "integer",
+            }
+        )
+        rows.append(
+            {
+                "name": "skip",
+                "required": False,
+                "schema": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000,
+                    "title": "Skip",
+                    "description": (
+                        "With all_pages and page_token: how many records of that page an "
+                        "earlier run already returned (its next_skip)."
+                    ),
                 },
                 "widget": "integer",
             }
@@ -1285,8 +1302,9 @@ def api_pages(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             "- **Results.** A generated step returns `status`, `data` (YouTube's JSON) or `file` "
             "(a workflow file for a caption track), `etag` and `warnings`; a list also returns "
             "`items`, `count`, `complete` and `next_page_token`.",
-            "- **Lists.** With `all_pages` a list step reads page after page; when it stops "
-            "early, `next_page_token` is where the next run starts, so nothing is skipped or "
+            "- **Lists.** With `all_pages` a list step reads page after page and never returns "
+            "more than asked for; when it stops early, `next_page_token` and `next_skip` are "
+            "where the next run starts (`page_token` and `skip`), so nothing is skipped or "
             "read twice.",
             "- **Request bodies** are the YouTube resource as JSON in `body`, with the parts "
             "named in `part`. A field the resource does not have is refused before sending.",

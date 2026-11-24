@@ -13,7 +13,7 @@ components:
     - **Scopes.** Each step names the Google scopes that allow it. The connection type decides which scopes are asked for: YouTube channel, YouTube channel with memberships, or YouTube content owner.
     - **Quota.** YouTube does not report the quota left in its answers. Each Data API step names its cost in quota units from YouTube's quota table; when the daily quota is used up, YouTube refuses with quotaExceeded and the step says so.
     - **Results.** A generated step returns `status`, `data` (YouTube's JSON) or `file` (a workflow file for a caption track), `etag` and `warnings`; a list also returns `items`, `count`, `complete` and `next_page_token`.
-    - **Lists.** With `all_pages` a list step reads page after page; when it stops early, `next_page_token` is where the next run starts, so nothing is skipped or read twice.
+    - **Lists.** With `all_pages` a list step reads page after page and never returns more than asked for; when it stops early, `next_page_token` and `next_skip` are where the next run starts (`page_token` and `skip`), so nothing is skipped or read twice.
     - **Request bodies** are the YouTube resource as JSON in `body`, with the parts named in `part`. A field the resource does not have is refused before sending.
     - **Accepted or completed.** Every step that changes data returns `processing`: `completed` when YouTube answered that the change is made, `accepted` for an uploaded video, which YouTube processes afterwards; then `applied` is false and `check` names Get video processing status.
     - **Changes are sent once.** A step that changes data is never retried automatically; when its outcome is unclear it says so, and you check YouTube before running it again. Test runs never send changes.
@@ -48,7 +48,7 @@ components:
 
     Inputs: none.
 
-    Results: `channels`, `count`, `complete`, `next_page_token`, `warnings`.
+    Results: `channels`, `count`, `complete`, `next_page_token`, `next_skip`, `warnings`.
 
     ### Get all channel videos
 
@@ -56,9 +56,9 @@ components:
 
     Action id `list_channel_videos` · reads only · YouTube: `GET /youtube/v3/channels`, `GET /youtube/v3/playlistItems`
 
-    Inputs: `channel_id`, `max_videos`, `page_token`, `output`.
+    Inputs: `channel_id`, `max_videos`, `page_token`, `skip`, `output`.
 
-    Results: `channel_id`, `uploads_playlist_id`, `videos`, `count`, `complete`, `next_page_token`, `file`, `warnings`.
+    Results: `channel_id`, `uploads_playlist_id`, `videos`, `count`, `complete`, `next_page_token`, `next_skip`, `file`, `warnings`.
 
     ### Get videos by ID
 
@@ -116,9 +116,9 @@ components:
 
     Action id `list_video_comments` · reads only · YouTube: `GET /youtube/v3/commentThreads`
 
-    Inputs: `video_id` (required), `order`, `search_terms`, `text_format`, `include_replies`, `max_comments`, `page_token`, `output`.
+    Inputs: `video_id` (required), `order`, `search_terms`, `text_format`, `include_replies`, `max_comments`, `page_token`, `skip`, `output`.
 
-    Results: `comments`, `count`, `complete`, `next_page_token`, `file`, `warnings`.
+    Results: `comments`, `count`, `complete`, `next_page_token`, `next_skip`, `file`, `warnings`.
 
     ### Reply to comment
 
@@ -136,9 +136,9 @@ components:
 
     Action id `list_my_playlists` · reads only · YouTube: `GET /youtube/v3/playlists`
 
-    Inputs: `max_playlists`, `page_token`.
+    Inputs: `max_playlists`, `page_token`, `skip`.
 
-    Results: `playlists`, `count`, `complete`, `next_page_token`, `warnings`.
+    Results: `playlists`, `count`, `complete`, `next_page_token`, `next_skip`, `warnings`.
 
     ### Create playlist
 
