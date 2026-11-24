@@ -413,7 +413,9 @@ def test_version_step_limit_and_changelog() -> None:
 def test_vendor_listing_and_repository() -> None:
     manifest = load("extension.yaml")
     assert manifest["extension_id"] == "flowsteward.youtube"
-    assert BUNDLE.name == "flowsteward_youtube"
+    # Flow Steward installs the bundle in a folder named after the id ("." and "-" become
+    # "_"); the checkout folder itself may have any name (the repository's, on GitHub).
+    assert manifest["extension_id"].replace(".", "_").replace("-", "_") == "flowsteward_youtube"
     assert manifest["vendor"] == {
         "name": "Flow Steward",
         "support_url": REPOSITORY + "/issues",
