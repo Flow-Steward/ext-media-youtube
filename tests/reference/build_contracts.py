@@ -70,6 +70,12 @@ EXCLUDED_PRODUCTS = {
         "Bulk reports YouTube prepares as files on a schedule: a separate product with its "
         "own Discovery document (youtubereporting v1), not included in this release."
     ),
+    "Posts (posts.list, posts.insert, posts.update, posts.delete, posts.imageUpload)": (
+        'Not in the pinned Discovery document; Google documents the resource as "in a pilot '
+        'phase with access limited to select launch partners", so only approved Google '
+        "Cloud projects can call it "
+        "(https://developers.google.com/youtube/v3/docs/posts)."
+    ),
 }
 #: Flow Steward's default cap of a workflow file a step reads (FS_EXTENSION_ARTIFACT_MAX_BYTES).
 HOST_ARTIFACT_MAX_BYTES = 200 * 1024 * 1024
@@ -829,6 +835,7 @@ def manifest_rows(registry: dict[str, Any]) -> list[dict[str, Any]]:
                 "calls": spec["calls"],
                 "file": COMPOSITE_FILES.get(spec["operation_id"]),
                 "upload": spec.get("upload"),
+                "scopes": calls_scopes(registry, spec["calls"]),
             }
         )
     for sid, entry in registry["operations"].items():
@@ -844,9 +851,43 @@ def manifest_rows(registry: dict[str, Any]) -> list[dict[str, Any]]:
                 "calls": [f"{entry['method']} {entry['path']}"],
                 "file": entry.get("file"),
                 "upload": (entry["body"] or {}).get("upload"),
+                "scopes": [entry["scopes"]],
             }
         )
     return rows
+
+
+def calls_scopes(registry: dict[str, Any], calls: list[str]) -> list[list[str]]:
+    """The scopes of each method an everyday step calls (any one of a method's scopes
+    allows it). ``PUT (upload session)`` continues the upload it follows."""
+    by_call = {f"{e['method']} {e['path']}": e["scopes"] for e in registry["operations"].values()}
+    out = []
+    for call in calls:
+        if call.endswith("(upload session)"):
+            continue
+        method, path = call.split(" ", 1)
+        key = f"{method} {path.removeprefix('/upload')}"
+        if key not in by_call:
+            raise ValueError(f"an everyday step calls {call}, which is not a generated step")
+        out.append(by_call[key])
+    return out
+
+
+def connection_types_for(scope_lists: list[list[str]]) -> list[str]:
+    """The connection types whose scopes allow every method a step calls: for each
+    method, at least one of the method's scopes is among the type's (Discovery lists
+    every scope that allows a method)."""
+    allowed = [
+        type_id
+        for type_id, facts in CONNECTION_TYPES.items()
+        if all(
+            not scopes or {SCOPE + s for s in facts["scopes"]} & set(scopes)
+            for scopes in scope_lists
+        )
+    ]
+    if not allowed:
+        raise ValueError("no connection type has the scopes of a step")
+    return allowed
 
 
 def operation_manifest(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -870,7 +911,7 @@ def operation_manifest(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "description": row["description"],
             "operation_kind": "action" if write else "source",
             "category": "media",
-            "connection_type_ids": list(CONNECTION_TYPES),
+            "connection_type_ids": connection_types_for(row["scopes"]),
             "workflow_visible": True,
         }
         if write:

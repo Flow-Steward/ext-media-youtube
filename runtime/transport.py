@@ -335,6 +335,20 @@ class YouTubeTransport:
                 "YouTube did not answer in time" + (CHECK if mutating else ""),
                 **_transport_failure_facts(mutating=mutating),
             ) from None
+        except http.client.IncompleteRead:
+            # Content-Length not reached, or a chunked answer that stopped before its end.
+            if not mutating:
+                raise errors.no_effect(
+                    errors.INVALID_RESPONSE,
+                    "YouTube's answer was cut off before its end; it is not used",
+                    failure_class="transient",
+                    retryable=True,
+                ) from None
+            raise ExtensionError(
+                errors.TIMEOUT_UNKNOWN,
+                "YouTube's answer was cut off before its end" + CHECK,
+                **_transport_failure_facts(mutating=True),
+            ) from None
         except (OSError, http.client.HTTPException):
             raise ExtensionError(
                 errors.TIMEOUT_UNKNOWN if mutating else errors.CONNECTION_FAILED,
@@ -632,6 +646,11 @@ def read_bounded(
                     pass
         chunk = response.read(min(CHUNK_BYTES, limit + 1 - len(buffer)))
         if not chunk:
+            # http.client ends a read short of Content-Length without an error when the
+            # connection closes; the bytes still owed mean the answer was cut off.
+            owed = getattr(response, "length", None)
+            if isinstance(owed, int) and not isinstance(owed, bool) and owed > 0:
+                raise http.client.IncompleteRead(bytes(buffer), owed)
             break
         buffer.extend(chunk)
         if expires is not None and clock() > expires:

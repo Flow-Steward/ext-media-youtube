@@ -23,5 +23,6 @@ components:
 
     - **YouTube Analytics API**: Channel and video reports: in the separate extension YouTube Analytics (flowsteward.youtube-analytics, https://github.com/Flow-Steward/ext-marketing-youtube-analytics).
     - **YouTube Reporting API**: Bulk reports YouTube prepares as files on a schedule: a separate product with its own Discovery document (youtubereporting v1), not included in this release.
+    - **Posts (posts.list, posts.insert, posts.update, posts.delete, posts.imageUpload)**: Not in the pinned Discovery document; Google documents the resource as "in a pilot phase with access limited to select launch partners", so only approved Google Cloud projects can call it (https://developers.google.com/youtube/v3/docs/posts).
 
     The everyday steps on top: test the connection, get my channels, get all videos of a channel, get videos by ID, upload a video and follow its processing, update a video's details and thumbnail, get all comments of a video and reply, get and create playlists and add videos.

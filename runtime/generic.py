@@ -230,8 +230,14 @@ def to_call(entry: Mapping[str, Any], plan: Plan) -> Call:
 
 
 def _read_json(context: Context, answer: Answer, shown: str) -> Any:
+    """A read's JSON value; an empty or invalid answer is an error (nothing changed)."""
     if answer.empty:
-        return None
+        raise errors.no_effect(
+            errors.INVALID_RESPONSE,
+            f"YouTube answered {shown} without a body",
+            failure_class="provider",
+            retryable=False,
+        )
     try:
         return context.transport.json(answer)
     except ValueError as exc:

@@ -466,3 +466,61 @@ def test_readme_follows_the_structure() -> None:
     ]
     assert '<img src="icon.png"' in readme and "img.shields.io" in readme
     assert readme.rstrip().splitlines()[-1].startswith("YouTube and the YouTube logo")
+
+
+def _type_scopes() -> dict[str, set[str]]:
+    rows = yaml.safe_load((BUNDLE / "contracts/connection_types.yaml").read_text())
+    return {
+        row["connection_type_id"]: set(row["auth"]["scopes"]["required"])
+        for row in rows["connection_types"]
+    }
+
+
+def test_no_step_offers_a_connection_without_the_scope_its_methods_need() -> None:
+    """Discovery lists every scope that allows a method; a connection type is offered
+    only when one of them is among the scopes Core asks for with that type."""
+    types = _type_scopes()
+    registry = generic.registry()
+    by_call = {f"{e['method']} {e['path']}": e["scopes"] for e in registry.values()}
+    manifest = yaml.safe_load((BUNDLE / "contracts/operation_manifest.yaml").read_text())
+    spec_calls = {c["operation_id"]: c["calls"] for c in composite_specs.COMPOSITES}
+    checked = 0
+    for op in manifest["operations"]:
+        oid = op["operation_id"]
+        if oid in registry:
+            needed = [registry[oid]["scopes"]]
+        else:
+            needed = [
+                by_call[f"{c.split(' ', 1)[0]} {c.split(' ', 1)[1].removeprefix('/upload')}"]
+                for c in spec_calls[oid]
+                if not c.endswith("(upload session)")
+            ]
+        for type_id in op["connection_type_ids"]:
+            for scopes in needed:
+                # A method Discovery lists without scopes (thirdPartyLinks) needs none.
+                assert not scopes or types[type_id] & set(scopes), (oid, type_id)
+        checked += 1
+    assert checked == len(manifest["operations"])
+
+
+def test_membership_steps_need_the_memberships_connection() -> None:
+    manifest = yaml.safe_load((BUNDLE / "contracts/operation_manifest.yaml").read_text())
+    ops = {op["operation_id"]: op for op in manifest["operations"]}
+    for oid in ("get_channel_members", "get_membership_levels"):
+        assert ops[oid]["connection_type_ids"] == ["youtube_channel_monetized"]
+
+
+def test_posts_are_excluded_with_their_reason() -> None:
+    reason = next(v for k, v in build_contracts.EXCLUDED_PRODUCTS.items() if k.startswith("Posts"))
+    assert "launch partners" in reason
+    assert "https://developers.google.com/youtube/v3/docs/posts" in reason
+    for method in ("list", "insert", "update", "delete", "imageUpload"):
+        assert f"posts.{method}" in next(
+            k for k in build_contracts.EXCLUDED_PRODUCTS if k.startswith("Posts")
+        )
+    assert (
+        "posts"
+        not in json.loads((BUNDLE / "tests/reference/youtube_v3.json").read_text())["resources"]
+    )
+    coverage = (BUNDLE / "ui/pages/coverage.yaml").read_text()
+    assert "posts.imageUpload" in coverage

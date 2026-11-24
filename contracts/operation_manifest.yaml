@@ -2852,9 +2852,7 @@ operations:
   operation_kind: source
   category: media
   connection_type_ids:
-  - youtube_channel
   - youtube_channel_monetized
-  - youtube_content_owner
   workflow_visible: true
   inputs:
   - name: connection_ref
@@ -3010,9 +3008,7 @@ operations:
   operation_kind: source
   category: media
   connection_type_ids:
-  - youtube_channel
   - youtube_channel_monetized
-  - youtube_content_owner
   workflow_visible: true
   inputs:
   - name: connection_ref
