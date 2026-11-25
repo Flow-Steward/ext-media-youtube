@@ -402,12 +402,12 @@ def test_the_icon_is_a_square_png_with_the_logo_at_least_100_px_tall() -> None:
 
 def test_version_step_limit_and_changelog() -> None:
     manifest = load("extension.yaml")
-    assert manifest["version"] == "0.1.2" == build_contracts.VERSION
+    assert manifest["version"] == "0.1.3" == build_contracts.VERSION
     assert manifest["entrypoint"]["timeout_seconds"] == 600
     assert limits.STEP_TIMEOUT_SECONDS == 600
     changelog = (BUNDLE / "CHANGELOG.md").read_text(encoding="utf-8")
-    assert changelog.splitlines()[2].startswith("## 0.1.2")
-    assert "0.1.2" in json.dumps(load("ui/pages/changelog.yaml"))
+    assert changelog.splitlines()[2].startswith("## 0.1.3")
+    assert "0.1.3" in json.dumps(load("ui/pages/changelog.yaml"))
 
 
 def test_vendor_listing_and_repository() -> None:

@@ -3,6 +3,7 @@
 page_id: youtube-api-playlists
 title: 'YouTube API: Playlists'
 description: The 12 playlists steps.
+project_scoped: false
 components:
 - component_id: steps_playlists
   type: markdown

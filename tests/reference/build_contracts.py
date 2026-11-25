@@ -38,7 +38,7 @@ import names  # noqa: E402
 
 STEP_IDS = HERE / "step_ids.json"
 QUOTA = HERE / "quota_costs.json"
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 EXTENSION_ID = "flowsteward.youtube"
 REPOSITORY = "https://github.com/Flow-Steward/ext-media-youtube"
 HEADER = (
@@ -1564,7 +1564,30 @@ def _str(dumper: yaml.SafeDumper, value: str) -> Any:
 _Dumper.add_representer(str, _str)
 
 
+def with_project_scope(page: dict[str, Any]) -> dict[str, Any]:
+    """The page with ``project_scoped`` set explicitly after its description.
+
+    An explicit false wins over the extension's project scope in every Flow Steward
+    version (manifestPageRequiresProject), so reference pages open without a project;
+    a page with anything but plain markdown (a form, a panel, a query) needs one.
+    """
+    if "project_scoped" in page:
+        return page
+    needs = any(
+        c.get("type") != "markdown" or c.get("query_id") for c in page.get("components") or []
+    )
+    out: dict[str, Any] = {}
+    for key, value in page.items():
+        out[key] = value
+        if key == "description":
+            out["project_scoped"] = needs
+    out.setdefault("project_scoped", needs)
+    return out
+
+
 def render(path: str, value: Any) -> str:
+    if path.startswith("ui/pages/") and isinstance(value, dict):
+        value = with_project_scope(value)
     if path.endswith(".json"):
         return json.dumps(value, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
     if path == "extension.yaml":

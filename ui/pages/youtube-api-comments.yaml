@@ -3,6 +3,7 @@
 page_id: youtube-api-comments
 title: 'YouTube API: Comments and captions'
 description: The 13 comments and captions steps.
+project_scoped: false
 components:
 - component_id: steps_comments_and_captions
   type: markdown

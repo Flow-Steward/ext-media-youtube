@@ -4,6 +4,7 @@ page_id: api-coverage
 title: YouTube API coverage
 description: Every step, the YouTube method it calls, its inputs and what it returns, and what is deliberately
   not offered.
+project_scoped: false
 components:
 - component_id: coverage_summary
   type: markdown

@@ -3,6 +3,7 @@
 page_id: youtube-api-live
 title: 'YouTube API: Live streaming'
 description: The 21 live streaming steps.
+project_scoped: false
 components:
 - component_id: steps_live_streaming
   type: markdown

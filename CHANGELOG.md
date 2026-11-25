@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- The Setup Guide, API, API coverage, Changelog and Support pages open without choosing a project; only the pages that need one ask for it.
+
 ## 0.1.2 — 2026-11-24
 
 - Every input has one readable label in every step; inputs that mean the same are described the same.

@@ -3,6 +3,7 @@
 page_id: youtube-api-videos
 title: 'YouTube API: Videos'
 description: The 14 videos steps.
+project_scoped: false
 components:
 - component_id: steps_videos
   type: markdown

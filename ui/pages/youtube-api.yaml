@@ -3,6 +3,7 @@
 page_id: youtube-api
 title: YouTube API
 description: How the YouTube steps work, and the everyday steps.
+project_scoped: false
 components:
 - component_id: api_overview
   type: markdown

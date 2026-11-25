@@ -3,6 +3,7 @@
 page_id: youtube-api-subscriptions
 title: 'YouTube API: Subscriptions and regions'
 description: The 5 subscriptions and regions steps.
+project_scoped: false
 components:
 - component_id: steps_subscriptions_and_regions
   type: markdown

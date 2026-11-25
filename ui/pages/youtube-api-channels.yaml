@@ -3,6 +3,7 @@
 page_id: youtube-api-channels
 title: 'YouTube API: Channels'
 description: The 16 channels steps.
+project_scoped: false
 components:
 - component_id: steps_channels
   type: markdown
